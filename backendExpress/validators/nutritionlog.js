@@ -6,6 +6,27 @@ export const validateNutritionLogIdParam = [
   param("id").isMongoId().withMessage("id must be a valid Mongo ObjectId"),
 ];
 
+export const validateNutritionLogFoodItemParams = [
+  param("id").isMongoId().withMessage("id must be a valid Mongo ObjectId"),
+  param("foodItemId")
+    .isMongoId()
+    .withMessage("foodItemId must be a valid Mongo ObjectId"),
+];
+
+export const validateNutritionLogFoodItemPatch = [
+  body("name").optional().trim().notEmpty().withMessage("name cannot be empty"),
+  body("calories")
+    .optional()
+    .isNumeric()
+    .withMessage("calories must be a number"),
+  body("protein")
+    .optional()
+    .isNumeric()
+    .withMessage("protein must be a number"),
+  body("carbs").optional().isNumeric().withMessage("carbs must be a number"),
+  body("fats").optional().isNumeric().withMessage("fats must be a number"),
+];
+
 export const validateNutritionLogCreate = [
   body("userId")
     .isMongoId()
@@ -80,4 +101,28 @@ export const validateNutritionLogUpdate = [
     .optional()
     .isNumeric()
     .withMessage("fats must be a number"),
+];
+
+// PATCH /nutritionlogs/:id
+// Intended for top-level edits like meal/date (and optionally userId).
+// We explicitly reject foodItems here to avoid accidental array replacement.
+export const validateNutritionLogPatch = [
+  body("userId")
+    .optional()
+    .isMongoId()
+    .withMessage("userId must be a valid Mongo ObjectId"),
+  body("meal")
+    .optional()
+    .isIn(mealValues)
+    .withMessage(`meal must be one of: ${mealValues.join(", ")}`),
+  body("date")
+    .optional()
+    .isISO8601()
+    .withMessage("date must be a valid ISO8601 date"),
+  body("foodItems")
+    .not()
+    .exists()
+    .withMessage(
+      "foodItems cannot be patched via PATCH /nutritionlogs/:id. Use PATCH /nutritionlogs/:id/fooditems/:foodItemId or PUT /nutritionlogs/:id."
+    ),
 ];
