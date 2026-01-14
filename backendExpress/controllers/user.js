@@ -1,4 +1,6 @@
 import User from "../models/User.js";
+import WorkoutGoal from "../models/WorkoutGoal.js";
+import NutritionGoal from "../models/NutritionGoal.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
@@ -15,7 +17,18 @@ export const getUsers = async (req, res) => {
 // register user
 
 export const createUser = async (req, res) => {
-  const { name, email, password, goal, height, weight, gender, age } = req.body;
+  const {
+    name,
+    email,
+    password,
+    goal,
+    height,
+    weight,
+    gender,
+    age,
+    workoutGoal,
+    nutritionGoal,
+  } = req.body;
 
   const findExistingUser = await User.findOne({ email });
 
@@ -37,7 +50,53 @@ export const createUser = async (req, res) => {
       age,
     });
     await newUser.save();
-    res.status(201).json(newUser);
+
+    // Create associated goals if provided (recommended for your new registration flow)
+    let createdWorkoutGoal = null;
+    let createdNutritionGoal = null;
+
+    try {
+      if (workoutGoal) {
+        const { daysPerWeek, schedule } = workoutGoal;
+        createdWorkoutGoal = await WorkoutGoal.create({
+          userId: newUser._id,
+          daysPerWeek,
+          schedule,
+        });
+      }
+
+      if (nutritionGoal) {
+        const {
+          caloriesPerDay,
+          proteinGramsPerDay,
+          carbsGramsPerDay,
+          fatsGramsPerDay,
+        } = nutritionGoal;
+
+        createdNutritionGoal = await NutritionGoal.create({
+          userId: newUser._id,
+          caloriesPerDay,
+          proteinGramsPerDay,
+          carbsGramsPerDay,
+          fatsGramsPerDay,
+        });
+      }
+    } catch (goalError) {
+      // If goals fail, clean up the user so registration stays all-or-nothing
+      await User.findByIdAndDelete(newUser._id);
+      return res
+        .status(500)
+        .json({
+          message: "Error creating user goals",
+          error: goalError.message,
+        });
+    }
+
+    res.status(201).json({
+      user: newUser,
+      workoutGoal: createdWorkoutGoal,
+      nutritionGoal: createdNutritionGoal,
+    });
   } catch (error) {
     res.status(500).json({ message: "Error creating user" });
   }
@@ -101,4 +160,28 @@ export const refreshUser = async (req, res) => {
 
     res.status(200).json(newAccessToken);
   });
+};
+
+// get current user (requires Authorization: Bearer <accessToken>)
+export const getMe = async (req, res) => {
+  try {
+    const userId = req.decoded?.id;
+    if (!userId) {
+      return res.status(401).json({ message: "Invalid token" });
+    }
+
+    const user = await User.findById(userId).select("-password");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const [workoutGoal, nutritionGoal] = await Promise.all([
+      WorkoutGoal.findOne({ userId }),
+      NutritionGoal.findOne({ userId }),
+    ]);
+
+    res.status(200).json({ user, workoutGoal, nutritionGoal });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching current user" });
+  }
 };

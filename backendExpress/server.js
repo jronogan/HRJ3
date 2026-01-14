@@ -8,6 +8,8 @@ import rateLimiter from "express-rate-limit";
 import connectDB from "./db/db.js";
 import workoutLogRouter from "./routers/workoutlog.js";
 import nutritionLogRouter from "./routers/nutritionlog.js";
+import workoutGoalRouter from "./routers/workoutgoal.js";
+import nutritionGoalRouter from "./routers/nutritiongoal.js";
 import userRouter from "./routers/user.js";
 
 const app = express();
@@ -27,6 +29,8 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use("/workoutlogs", workoutLogRouter);
 app.use("/nutritionlogs", nutritionLogRouter);
+app.use("/workoutgoals", workoutGoalRouter);
+app.use("/nutritiongoals", nutritionGoalRouter);
 app.use("/users", userRouter);
 
 app.listen(process.env.PORT, () => {
