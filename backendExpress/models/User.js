@@ -5,13 +5,11 @@ const UserSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
-  goals: [
-    {
-      type: String,
-      enum: ["weight_loss", "weight_gain", "maintenance"],
-      required: true,
-    },
-  ],
+  goal: {
+    type: String,
+    enum: ["weight_loss", "weight_gain", "maintenance"],
+    required: true,
+  },
   height: { type: Number, required: true },
   weight: { type: Number, required: true },
   gender: { type: String, enum: ["male", "female", "other"], required: true },
