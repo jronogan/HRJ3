@@ -6,7 +6,21 @@ const WorkoutLogSchema = new mongoose.Schema({
   exercises: [
     {
       name: { type: String, required: true },
-      muscleGroup: { type: String, required: true },
+      muscleGroup: {
+        type: String,
+        enum: [
+          "chest",
+          "back",
+          "legs",
+          "biceps",
+          "triceps",
+          "shoulders",
+          "cardio",
+          "core",
+          "forearms",
+        ],
+        required: true,
+      },
       sets: { type: Number, required: true },
       repetitions: { type: Number, required: true },
     },
