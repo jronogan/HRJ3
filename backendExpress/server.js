@@ -5,7 +5,10 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import rateLimiter from "express-rate-limit";
-import connectDB from "./src/db/db.js";
+import connectDB from "./db/db.js";
+import workoutLogRouter from "./routers/workoutlog.js";
+import nutritionLogRouter from "./routers/nutritionlog.js";
+import userRouter from "./routers/user.js";
 
 const app = express();
 connectDB();
@@ -22,10 +25,15 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+app.use("/workoutlogs", workoutLogRouter);
+app.use("/nutritionlogs", nutritionLogRouter);
+app.use("/users", userRouter);
+
 app.listen(process.env.PORT, () => {
   console.log(`Server is running on port ${process.env.PORT}`);
 });
 
+// error catching
 app.use((err, req, res, next) => {
   if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
     console.error("JSON parsing error:", err.message);
