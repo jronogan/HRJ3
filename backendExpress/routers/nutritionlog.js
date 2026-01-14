@@ -4,12 +4,17 @@ import {
   deleteNutritionLog,
   getNutritionLogById,
   getNutritionLogs,
+  patchNutritionLog,
   updateNutritionLog,
+  updateNutritionLogFoodItem,
 } from "../controllers/nutritionlog.js";
 import { validate } from "../validators/validate.js";
 import {
   validateNutritionLogCreate,
+  validateNutritionLogFoodItemParams,
+  validateNutritionLogFoodItemPatch,
   validateNutritionLogIdParam,
+  validateNutritionLogPatch,
   validateNutritionLogUpdate,
 } from "../validators/nutritionlog.js";
 import { isSignedIn } from "../middleware/is-signed-in.js";
@@ -31,13 +36,21 @@ router.post(
   validate,
   createNutritionLog
 );
-router.put(
+router.patch(
   "/:id",
   isSignedIn,
   validateNutritionLogIdParam,
-  validateNutritionLogUpdate,
+  validateNutritionLogPatch,
   validate,
-  updateNutritionLog
+  patchNutritionLog
+);
+router.patch(
+  "/:id/fooditems/:foodItemId",
+  isSignedIn,
+  validateNutritionLogFoodItemParams,
+  validateNutritionLogFoodItemPatch,
+  validate,
+  updateNutritionLogFoodItem
 );
 router.delete(
   "/:id",
