@@ -1,9 +1,30 @@
-import React from "react";
+import React, { useState } from "react";
+import UserContext from "./context/user";
+import { Navigate, Route, Routes } from "react-router";
+import ProtectedRoute from "./components/ProtectedRoute";
+import FitnessDisplay from "./components/FitnessDisplay/FitnessDisplay";
 
 function App() {
+  const [accessToken, setAccessToken] = useState("");
+  const [role, setRole] = useState("");
+
   return (
-    <div>
-      <h2>GA SEB</h2>
+    <div className="container">
+      <UserContext.Provider
+        value={{ accessToken, setAccessToken, role, setRole }}
+      >
+        <Routes>
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route
+            path="/fitness"
+            element={
+              <ProtectedRoute>
+                <FitnessDisplay />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </UserContext.Provider>
     </div>
   );
 }
