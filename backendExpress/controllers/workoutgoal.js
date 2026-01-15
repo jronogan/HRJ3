@@ -80,6 +80,35 @@ export const updateWorkoutGoal = async (req, res) => {
   }
 };
 
+export const updateWorkoutGoalByDay = async (req, res) => {
+  const { id } = req.params;
+  const { day, muscleGroups } = req.body;
+
+  try {
+    if (!day) {
+      return res.status(400).json({ message: "day is required" });
+    }
+
+    // Build the dynamic path: schedule.<day>.muscleGroups
+    const dayKey = String(day).toLowerCase();
+    const path = `schedule.${dayKey}.muscleGroups`;
+
+    const updated = await WorkoutGoal.findByIdAndUpdate(
+      id,
+      { $set: { [path]: muscleGroups ?? [] } },
+      { new: true, runValidators: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ message: "Workout goal not found" });
+    }
+
+    res.status(200).json(updated);
+  } catch (error) {
+    res.status(500).json({ message: "Error updating workout goal" });
+  }
+};
+
 export const deleteWorkoutGoal = async (req, res) => {
   const { id } = req.params;
 
