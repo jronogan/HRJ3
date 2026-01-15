@@ -52,8 +52,10 @@ export const validateUserRegister = [
   body("age").isInt({ min: 1 }).withMessage("age must be a positive integer"),
 
   // workoutGoal (required for your new flow)
-  body("workoutGoal").isObject().withMessage("workoutGoal is required"),
+  // body("workoutGoal").isObject().withMessage("workoutGoal is required"),
   body("workoutGoal.daysPerWeek")
+    .optional()
+    .isObject()
     .isInt({ min: 0, max: 7 })
     .withMessage("workoutGoal.daysPerWeek must be 0-7"),
   body("workoutGoal.schedule")
@@ -72,8 +74,10 @@ export const validateUserRegister = [
   ]),
 
   // nutritionGoal (required for your new flow)
-  body("nutritionGoal").isObject().withMessage("nutritionGoal is required"),
+  // body("nutritionGoal").isObject().withMessage("nutritionGoal is required"),
   body("nutritionGoal.caloriesPerDay")
+    .optional()
+    .isObject()
     .isInt({ min: 0 })
     .withMessage("nutritionGoal.caloriesPerDay must be a positive integer"),
   body("nutritionGoal.proteinGramsPerDay")
