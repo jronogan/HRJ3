@@ -6,6 +6,7 @@ import {
   getWorkoutGoalByUserId,
   getWorkoutGoals,
   updateWorkoutGoal,
+  updateWorkoutGoalByDay,
 } from "../controllers/workoutgoal.js";
 import { isSignedIn } from "../middleware/is-signed-in.js";
 import { validate } from "../validators/validate.js";
@@ -47,6 +48,13 @@ router.put(
   validateWorkoutGoalUpdate,
   validate,
   updateWorkoutGoal
+);
+router.put(
+  "/:id/day",
+  isSignedIn,
+  validateWorkoutGoalIdParam,
+  validate,
+  updateWorkoutGoalByDay
 );
 router.delete(
   "/:id",
