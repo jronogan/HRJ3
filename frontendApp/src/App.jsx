@@ -3,6 +3,10 @@ import UserContext from "./context/user";
 import { Navigate, Route, Routes } from "react-router";
 import ProtectedRoute from "./components/ProtectedRoute";
 import FitnessDisplay from "./components/FitnessDisplay/FitnessDisplay";
+import TempLogin from "./components/FitnessDisplay/TempLogin";
+import FitnessDashboard from "./components/FitnessDisplay/FitnessDashboard";
+import NutritionLogsPage from "./components/FitnessDisplay/NutritionLogsPage";
+import WorkoutLogsPage from "./components/FitnessDisplay/WorkoutLogsPage";
 
 function App() {
   const [accessToken, setAccessToken] = useState("");
@@ -15,14 +19,20 @@ function App() {
       >
         <Routes>
           <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/login" element={<TempLogin />} />
           <Route
-            path="/fitness"
+            path="/fitness/*"
             element={
               <ProtectedRoute>
                 <FitnessDisplay />
               </ProtectedRoute>
             }
-          />
+          >
+            <Route index element={<FitnessDashboard />} />
+            <Route path="nutrition-logs" element={<NutritionLogsPage />} />
+            <Route path="workout-logs" element={<WorkoutLogsPage />} />
+            <Route path="*" element={<Navigate to="/fitness" replace />} />
+          </Route>
         </Routes>
       </UserContext.Provider>
     </div>

@@ -1,14 +1,25 @@
 const sharedFetch = () => {
   const fetchData = async (endpoint, method, body, token) => {
     try {
-      const res = await fetch(import.meta.env.VITE_SERVER + endpoint, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + token,
-        },
-        body: JSON.stringify(body),
-      });
+      const headers = {
+        "Content-Type": "application/json",
+      };
+
+      if (token) {
+        headers.Authorization = "Bearer " + token;
+      }
+
+      const upperMethod = String(method || "GET").toUpperCase();
+      const options = {
+        method: upperMethod,
+        headers,
+      };
+
+      if (upperMethod !== "GET" && upperMethod !== "HEAD") {
+        options.body = JSON.stringify(body ?? {});
+      }
+
+      const res = await fetch(import.meta.env.VITE_SERVER + endpoint, options);
       const data = await res.json();
 
       if (!res.ok) {
