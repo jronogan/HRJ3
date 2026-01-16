@@ -51,11 +51,9 @@ export const validateUserRegister = [
     .withMessage(`gender must be one of: ${genderValues.join(", ")}`),
   body("age").isInt({ min: 1 }).withMessage("age must be a positive integer"),
 
-  // workoutGoal (required for your new flow)
-  // body("workoutGoal").isObject().withMessage("workoutGoal is required"),
+  // workoutGoal (optional fields for new registration flow)
   body("workoutGoal.daysPerWeek")
     .optional()
-    .isObject()
     .isInt({ min: 0, max: 7 })
     .withMessage("workoutGoal.daysPerWeek must be 0-7"),
   body("workoutGoal.schedule")
@@ -73,25 +71,31 @@ export const validateUserRegister = [
       .withMessage(`invalid muscle group for ${day}`),
   ]),
 
-  // nutritionGoal (required for your new flow)
-  // body("nutritionGoal").isObject().withMessage("nutritionGoal is required"),
+  // nutritionGoal (optional fields for new registration flow)
   body("nutritionGoal.caloriesPerDay")
     .optional()
-    .isObject()
-    .isInt({ min: 0 })
-    .withMessage("nutritionGoal.caloriesPerDay must be a positive integer"),
+    .isNumeric()
+    .withMessage("nutritionGoal.caloriesPerDay must be a number")
+    .custom((v) => Number(v) >= 0)
+    .withMessage("nutritionGoal.caloriesPerDay must be >= 0"),
   body("nutritionGoal.proteinGramsPerDay")
     .optional()
-    .isInt({ min: 0 })
-    .withMessage("nutritionGoal.proteinGramsPerDay must be a positive integer"),
+    .isNumeric()
+    .withMessage("nutritionGoal.proteinGramsPerDay must be a number")
+    .custom((v) => Number(v) >= 0)
+    .withMessage("nutritionGoal.proteinGramsPerDay must be >= 0"),
   body("nutritionGoal.carbsGramsPerDay")
     .optional()
-    .isInt({ min: 0 })
-    .withMessage("nutritionGoal.carbsGramsPerDay must be a positive integer"),
+    .isNumeric()
+    .withMessage("nutritionGoal.carbsGramsPerDay must be a number")
+    .custom((v) => Number(v) >= 0)
+    .withMessage("nutritionGoal.carbsGramsPerDay must be >= 0"),
   body("nutritionGoal.fatsGramsPerDay")
     .optional()
-    .isInt({ min: 0 })
-    .withMessage("nutritionGoal.fatsGramsPerDay must be a positive integer"),
+    .isNumeric()
+    .withMessage("nutritionGoal.fatsGramsPerDay must be a number")
+    .custom((v) => Number(v) >= 0)
+    .withMessage("nutritionGoal.fatsGramsPerDay must be >= 0"),
 ];
 
 export const validateUserLogin = [
