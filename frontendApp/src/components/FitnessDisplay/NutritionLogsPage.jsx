@@ -29,6 +29,8 @@ const NutritionLogsPage = () => {
   const [editMeal, setEditMeal] = useState("breakfast");
   const [editDate, setEditDate] = useState(toLocalISODate(new Date()));
 
+  const [filterDate, setFilterDate] = useState("");
+
   const load = async () => {
     setIsLoading(true);
     setError(null);
@@ -194,6 +196,10 @@ const NutritionLogsPage = () => {
     return <div className="fitnessCard">Loading nutrition logs...</div>;
   }
 
+  const visibleLogs = filterDate
+    ? logs.filter((l) => toLocalISODate(l?.date) === filterDate)
+    : logs;
+
   return (
     <div>
       <div className="fitnessRow" style={{ justifyContent: "space-between" }}>
@@ -212,7 +218,7 @@ const NutritionLogsPage = () => {
       <div className="fitnessCard" style={{ marginBottom: "1rem" }}>
         <h3>Add Nutrition Log</h3>
         <form onSubmit={createLog} className="fitnessGrid">
-          <div className="fitnessRow">
+          <div className="fitnessRow" style={{ gridColumn: "1 / -1" }}>
             <div className="fitnessField">
               <label>Date</label>
               <input
@@ -238,7 +244,7 @@ const NutritionLogsPage = () => {
             </div>
           </div>
 
-          <div className="fitnessTableWrap">
+          <div className="fitnessTableWrap" style={{ gridColumn: "1 / -1" }}>
             <table className="fitnessTable">
               <thead>
                 <tr>
@@ -346,11 +352,36 @@ const NutritionLogsPage = () => {
 
       <div className="fitnessCard">
         <h3>Existing Logs</h3>
-        {logs.length === 0 ? (
+        <div
+          className="fitnessRow"
+          style={{ marginTop: "0.5rem", alignItems: "flex-end" }}
+        >
+          <div className="fitnessField">
+            <label>Filter by date</label>
+            <input
+              className="fitnessInput"
+              type="date"
+              value={filterDate}
+              onChange={(e) => setFilterDate(e.target.value)}
+            />
+          </div>
+          <div className="fitnessField">
+            <label>&nbsp;</label>
+            <button
+              type="button"
+              className="fitnessButton"
+              onClick={() => setFilterDate("")}
+            >
+              Show all
+            </button>
+          </div>
+        </div>
+
+        {visibleLogs.length === 0 ? (
           <div className="fitnessMuted">No logs yet.</div>
         ) : null}
 
-        {logs.map((log) => (
+        {visibleLogs.map((log) => (
           <div key={log._id} style={{ marginTop: "1rem" }}>
             <div
               className="fitnessRow"

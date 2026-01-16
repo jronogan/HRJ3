@@ -145,6 +145,31 @@ const FitnessDashboard = () => {
   const caloriesPct =
     calorieGoal > 0 ? (caloriesConsumed / calorieGoal) * 100 : 0;
 
+  const CalorieCenterLabel = ({ viewBox }) => {
+    const width = viewBox?.width ?? 0;
+    const height = viewBox?.height ?? 0;
+    const cx = (viewBox?.x ?? 0) + width / 2;
+    const cy = (viewBox?.y ?? 0) + height / 2;
+    const size = Math.min(width, height);
+    const fontSize = Math.max(16, Math.round(size * 0.22));
+    const value =
+      calorieGoal > 0
+        ? `${Math.round(caloriesPct)}%`
+        : `${Math.round(caloriesConsumed)} cal`;
+
+    return (
+      <text
+        x={cx}
+        y={cy}
+        textAnchor="middle"
+        dominantBaseline="central"
+        style={{ fontSize, fontWeight: 700, fill: "#1e40af" }}
+      >
+        {value}
+      </text>
+    );
+  };
+
   const calorieDonutData = (() => {
     if (!calorieGoal || calorieGoal <= 0) {
       return [{ name: "Calories", value: caloriesConsumed || 0 }];
@@ -213,6 +238,11 @@ const FitnessDashboard = () => {
     ([muscleGroup, stats]) => ({ muscleGroup, sets: stats.sets })
   );
 
+  const workoutDailyChartHeight = Math.max(
+    240,
+    (workoutGroupChart.length || 0) * 28 + 40
+  );
+
   const dayKey = weekdayKeyForDate(selectedDate);
   const plannedGroups = workoutGoal?.schedule?.[dayKey]?.muscleGroups ?? [];
   const completedGroups = Array.from(workoutByGroup.keys());
@@ -271,14 +301,7 @@ const FitnessDashboard = () => {
 
                       return <Cell key={slice.name} fill={fill} />;
                     })}
-                    <Label
-                      value={
-                        calorieGoal > 0
-                          ? `${Math.round(caloriesPct)}%`
-                          : `${Math.round(caloriesConsumed)} cal`
-                      }
-                      position="center"
-                    />
+                    <Label content={<CalorieCenterLabel />} position="center" />
                   </Pie>
                   <Tooltip />
                 </PieChart>
@@ -370,11 +393,24 @@ const FitnessDashboard = () => {
             {completedGroups.length ? completedGroups.join(", ") : "none"}
           </div>
 
-          <div style={{ width: "100%", height: 240, marginTop: "1rem" }}>
-            <ResponsiveContainer minWidth={0} minHeight={240}>
-              <BarChart data={workoutGroupChart}>
-                <XAxis dataKey="muscleGroup" />
-                <YAxis />
+          <div
+            style={{
+              width: "100%",
+              height: workoutDailyChartHeight,
+              marginTop: "1rem",
+            }}
+          >
+            <ResponsiveContainer
+              minWidth={0}
+              minHeight={workoutDailyChartHeight}
+            >
+              <BarChart
+                data={workoutGroupChart}
+                layout="vertical"
+                margin={{ left: 30 }}
+              >
+                <XAxis type="number" />
+                <YAxis type="category" dataKey="muscleGroup" width={90} />
                 <Tooltip />
                 <Bar dataKey="sets" name="Sets">
                   {workoutGroupChart.map((row) => (

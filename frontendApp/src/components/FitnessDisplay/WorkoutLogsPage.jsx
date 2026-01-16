@@ -27,6 +27,8 @@ const WorkoutLogsPage = () => {
   const [editDate, setEditDate] = useState(toLocalISODate(new Date()));
   const [editExercises, setEditExercises] = useState([emptyExercise()]);
 
+  const [filterDate, setFilterDate] = useState("");
+
   const load = async () => {
     setIsLoading(true);
     setError(null);
@@ -188,6 +190,10 @@ const WorkoutLogsPage = () => {
     return <div className="fitnessCard">Loading workout logs...</div>;
   }
 
+  const visibleLogs = filterDate
+    ? logs.filter((l) => toLocalISODate(l?.date) === filterDate)
+    : logs;
+
   return (
     <div>
       <div className="fitnessRow" style={{ justifyContent: "space-between" }}>
@@ -333,11 +339,36 @@ const WorkoutLogsPage = () => {
 
       <div className="fitnessCard">
         <h3>Existing Logs</h3>
-        {logs.length === 0 ? (
+        <div
+          className="fitnessRow"
+          style={{ marginTop: "0.5rem", alignItems: "flex-end" }}
+        >
+          <div className="fitnessField">
+            <label>Filter by date</label>
+            <input
+              className="fitnessInput"
+              type="date"
+              value={filterDate}
+              onChange={(e) => setFilterDate(e.target.value)}
+            />
+          </div>
+          <div className="fitnessField">
+            <label>&nbsp;</label>
+            <button
+              type="button"
+              className="fitnessButton"
+              onClick={() => setFilterDate("")}
+            >
+              Show all
+            </button>
+          </div>
+        </div>
+
+        {visibleLogs.length === 0 ? (
           <div className="fitnessMuted">No logs yet.</div>
         ) : null}
 
-        {logs.map((log) => (
+        {visibleLogs.map((log) => (
           <div key={log._id} style={{ marginTop: "1rem" }}>
             <div
               className="fitnessRow"
