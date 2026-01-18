@@ -2,6 +2,7 @@ import React, { use, useEffect, useMemo, useState } from "react";
 import UserContext from "../../context/user";
 import sharedFetch from "../../shared/sharedFetch";
 import { toLocalISODate } from "./fitnessUtils";
+import FoodItemRow from "./FoodItemRow";
 import "./FitnessDisplay.css";
 
 const emptyFoodItem = () => ({
@@ -248,7 +249,7 @@ const NutritionLogsPage = () => {
             <table className="fitnessTable">
               <thead>
                 <tr>
-                  <th>Name</th>
+                  <th>Food</th>
                   <th>Calories</th>
                   <th>Protein</th>
                   <th>Carbs</th>
@@ -463,71 +464,6 @@ const NutritionLogsPage = () => {
         ))}
       </div>
     </div>
-  );
-};
-
-const FoodItemRow = ({ foodItem, onSave }) => {
-  const [name, setName] = useState(foodItem?.name ?? "");
-  const [calories, setCalories] = useState(foodItem?.calories ?? "");
-  const [protein, setProtein] = useState(foodItem?.protein ?? "");
-  const [carbs, setCarbs] = useState(foodItem?.carbs ?? "");
-  const [fats, setFats] = useState(foodItem?.fats ?? "");
-
-  return (
-    <tr>
-      <td>
-        <input
-          className="fitnessInput"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-      </td>
-      <td>
-        <input
-          className="fitnessInput"
-          value={calories}
-          onChange={(e) => setCalories(e.target.value)}
-        />
-      </td>
-      <td>
-        <input
-          className="fitnessInput"
-          value={protein}
-          onChange={(e) => setProtein(e.target.value)}
-        />
-      </td>
-      <td>
-        <input
-          className="fitnessInput"
-          value={carbs}
-          onChange={(e) => setCarbs(e.target.value)}
-        />
-      </td>
-      <td>
-        <input
-          className="fitnessInput"
-          value={fats}
-          onChange={(e) => setFats(e.target.value)}
-        />
-      </td>
-      <td>
-        <button
-          className="fitnessButton"
-          type="button"
-          onClick={() =>
-            onSave({
-              name,
-              calories: calories === "" ? undefined : Number(calories),
-              protein: protein === "" ? undefined : Number(protein),
-              carbs: carbs === "" ? undefined : Number(carbs),
-              fats: fats === "" ? undefined : Number(fats),
-            })
-          }
-        >
-          Save item
-        </button>
-      </td>
-    </tr>
   );
 };
 

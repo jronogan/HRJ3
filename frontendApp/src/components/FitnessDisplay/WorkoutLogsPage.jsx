@@ -228,7 +228,7 @@ const WorkoutLogsPage = () => {
             <table className="fitnessTable">
               <thead>
                 <tr>
-                  <th>Name</th>
+                  <th>Exercise</th>
                   <th>Muscle Group</th>
                   <th>Sets</th>
                   <th>Reps</th>
