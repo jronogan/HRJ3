@@ -1,6 +1,7 @@
-import React, { useState, useContext } from "react";
-import { useNavigate } from "react-router";
+import React, { use, useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router";
 import UserContext from "../../context/user";
+import sharedFetch from "../../shared/sharedFetch";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -8,7 +9,8 @@ const Login = () => {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { setAccessToken, setRole } = useContext(UserContext);
+  const userCtx = use(UserContext);
+  const fetchData = useMemo(() => sharedFetch(), []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,22 +24,19 @@ const Login = () => {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/users/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Login failed");
+      const res = await fetchData("/users/login", "POST", { email, password });
+      if (!res.ok) {
+        throw new Error(res.msg || "Login failed");
       }
 
-      setAccessToken(data.accessToken);
-      setRole(data.role || "user");
+      const data = res.data;
+      const access = data?.access ?? data?.accessToken ?? data?.token;
+      if (!access) {
+        throw new Error("Login succeeded but no access token was returned");
+      }
+
+      userCtx.setAccessToken(access);
+      if (data?.role) userCtx.setRole(data.role);
 
       navigate("/fitness");
     } catch (err) {
@@ -99,9 +98,9 @@ const Login = () => {
         <div className="auth-footer">
           <p>
             Don't have an account?{" "}
-            <a href="/register" className="link">
+            <Link to="/register" className="link">
               Sign up here
-            </a>
+            </Link>
           </p>
         </div>
       </div>
