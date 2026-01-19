@@ -3,6 +3,7 @@ import {
   createWorkoutLog,
   deleteWorkoutLog,
   getWorkoutLogs,
+  getWorkoutLogsByUserId,
   updateWorkoutLog,
 } from "../controllers/workoutlog.js";
 import { validate } from "../validators/validate.js";
@@ -16,6 +17,7 @@ import { isSignedIn } from "../middleware/is-signed-in.js";
 const router = express.Router();
 
 router.get("/", isSignedIn, getWorkoutLogs);
+router.get("/users/:userId", isSignedIn, getWorkoutLogsByUserId);
 router.post(
   "/",
   isSignedIn,

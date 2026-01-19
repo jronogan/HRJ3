@@ -1,17 +1,19 @@
-import React, { useState, useContext } from "react";
-import { useNavigate } from "react-router";
+import React, { use, useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router";
 import SignupStep1 from "./SignupStep1";
 import SignupStep2 from "./SignupStep2";
 import SignupStep3 from "./SignupStep3";
 import SignupStep4 from "./SignupStep4";
 import UserContext from "../../context/user";
+import sharedFetch from "../../shared/sharedFetch";
 
 const Registration = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const { setAccessToken, setRole } = useContext(UserContext);
+  const userCtx = use(UserContext);
+  const fetchData = useMemo(() => sharedFetch(), []);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -81,42 +83,38 @@ const Registration = () => {
         },
       };
 
-      const response = await fetch("http://localhost:5000/users/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(registrationData),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Registration failed");
+      const registerRes = await fetchData(
+        "/users/register",
+        "POST",
+        registrationData
+      );
+      if (!registerRes.ok) {
+        throw new Error(registerRes.msg || "Registration failed");
       }
 
       // Now login the user
-      const loginResponse = await fetch("http://localhost:5000/users/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-        }),
+      const loginRes = await fetchData("/users/login", "POST", {
+        email: formData.email,
+        password: formData.password,
       });
 
-      const loginData = await loginResponse.json();
-
-      if (!loginResponse.ok) {
+      if (!loginRes.ok) {
         throw new Error(
           "Registration successful, but login failed. Please login manually."
         );
       }
 
-      setAccessToken(loginData.accessToken);
-      setRole(loginData.role || "user");
+      const loginData = loginRes.data;
+      const access =
+        loginData?.access ?? loginData?.accessToken ?? loginData?.token;
+      if (!access) {
+        throw new Error(
+          "Registration successful, but no access token was returned from login."
+        );
+      }
+
+      userCtx.setAccessToken(access);
+      if (loginData?.role) userCtx.setRole(loginData.role);
 
       navigate("/fitness");
     } catch (err) {
@@ -212,9 +210,9 @@ const Registration = () => {
         <div className="registration-footer">
           <p>
             Already have an account?{" "}
-            <a href="/login" className="link">
+            <Link to="/login" className="link">
               Login here
-            </a>
+            </Link>
           </p>
         </div>
       </div>
