@@ -20,6 +20,7 @@ const FitnessDisplay = () => {
           <Link to="/fitness">Dashboard</Link>
           <Link to="/fitness/nutrition-logs">Nutrition Logs</Link>
           <Link to="/fitness/workout-logs">Workout Logs</Link>
+          <Link to="/fitness/workout-exercises">Workout Exercises</Link>
         </div>
         <button className="fitnessButton" onClick={logout}>
           Logout
