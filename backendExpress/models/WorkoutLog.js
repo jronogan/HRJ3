@@ -21,7 +21,7 @@ const WorkoutLogSchema = new mongoose.Schema({
         ],
         required: true,
       },
-      weight: { type: Number, required: true },
+      weight: { type: Number, optional: true },
       sets: { type: Number, required: true },
       repetitions: { type: Number, required: true },
     },
