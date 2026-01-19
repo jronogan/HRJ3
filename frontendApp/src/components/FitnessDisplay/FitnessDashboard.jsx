@@ -677,7 +677,7 @@ const FitnessDashboard = () => {
           onClick={() => setIsEditingWorkout(false)}
         >
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h3>
+            <h3 style={{ fontSize: "22.4px" }}>
               Edit Workout for{" "}
               {editingDay?.charAt(0).toUpperCase() + editingDay?.slice(1)}
             </h3>
@@ -686,7 +686,7 @@ const FitnessDashboard = () => {
               <div style={{ marginBottom: "1.5rem" }}>
                 <h4
                   style={{
-                    fontSize: "16px",
+                    fontSize: "19.2px",
                     fontWeight: 700,
                     textTransform: "uppercase",
                     color: "#667eea",
@@ -710,7 +710,7 @@ const FitnessDashboard = () => {
                         display: "block",
                         marginBottom: "8px",
                         cursor: "pointer",
-                        fontSize: "14px",
+                        fontSize: "16.8px",
                       }}
                     >
                       <input
@@ -729,7 +729,7 @@ const FitnessDashboard = () => {
               <div>
                 <h4
                   style={{
-                    fontSize: "16px",
+                    fontSize: "19.2px",
                     fontWeight: 700,
                     textTransform: "uppercase",
                     color: "#667eea",
@@ -748,7 +748,7 @@ const FitnessDashboard = () => {
                           display: "block",
                           marginBottom: "8px",
                           cursor: "pointer",
-                          fontSize: "14px",
+                          fontSize: "16.8px",
                         }}
                       >
                         <input
