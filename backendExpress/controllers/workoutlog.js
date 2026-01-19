@@ -23,7 +23,24 @@ export const createWorkoutLog = async (req, res) => {
   const { userId, date, exercises } = req.body;
 
   try {
-    const newLog = new workoutLog({ userId, date, exercises });
+    const when = date ? new Date(date) : new Date();
+    const start = new Date(when);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(start);
+    end.setDate(end.getDate() + 1);
+
+    const existing = await workoutLog.findOne({
+      userId,
+      date: { $gte: start, $lt: end },
+    });
+
+    if (existing) {
+      existing.exercises.push(...exercises);
+      await existing.save();
+      return res.status(200).json(existing);
+    }
+
+    const newLog = new workoutLog({ userId, date: when, exercises });
     await newLog.save();
     res.status(201).json(newLog);
   } catch (error) {

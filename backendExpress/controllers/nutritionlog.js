@@ -34,10 +34,27 @@ export const getNutritionLogsByUserId = async (req, res) => {
 };
 
 export const createNutritionLog = async (req, res) => {
-  const { userId, foodItems, date, meal } = req.body;
+  const { userId, foodItems, date } = req.body;
 
   try {
-    const newLog = new NutritionLog({ userId, foodItems, date, meal });
+    const when = date ? new Date(date) : new Date();
+    const start = new Date(when);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(start);
+    end.setDate(end.getDate() + 1);
+
+    const existing = await NutritionLog.findOne({
+      userId,
+      date: { $gte: start, $lt: end },
+    });
+
+    if (existing) {
+      existing.foodItems.push(...foodItems);
+      await existing.save();
+      return res.status(200).json(existing);
+    }
+
+    const newLog = new NutritionLog({ userId, foodItems, date: when });
     await newLog.save();
     res.status(201).json(newLog);
   } catch (error) {
@@ -47,14 +64,13 @@ export const createNutritionLog = async (req, res) => {
 
 export const updateNutritionLog = async (req, res) => {
   const { id } = req.params;
-  const { userId, foodItems, date, meal } = req.body;
+  const { userId, foodItems, date } = req.body;
 
   try {
     const updateLog = {};
     if (userId) updateLog.userId = userId;
     if (foodItems) updateLog.foodItems = foodItems;
     if (date) updateLog.date = date;
-    if (meal) updateLog.meal = meal;
 
     const updatedLog = await NutritionLog.findByIdAndUpdate(id, updateLog, {
       new: true,
@@ -76,7 +92,7 @@ export const updateNutritionLog = async (req, res) => {
 // Route shape: PATCH /nutritionlogs/:id
 export const patchNutritionLog = async (req, res) => {
   const { id } = req.params;
-  const { userId, date, meal, foodItems } = req.body;
+  const { userId, date, foodItems } = req.body;
 
   // Guardrail: patching foodItems here is almost always accidental.
   // Use PATCH /:id/fooditems/:foodItemId for per-item edits, or PUT /:id for full replacement.
@@ -91,7 +107,6 @@ export const patchNutritionLog = async (req, res) => {
     const patch = {};
     if (userId !== undefined) patch.userId = userId;
     if (date !== undefined) patch.date = date;
-    if (meal !== undefined) patch.meal = meal;
 
     if (Object.keys(patch).length === 0) {
       return res.status(400).json({ message: "No updates provided" });
@@ -116,11 +131,13 @@ export const patchNutritionLog = async (req, res) => {
 // Route shape: PATCH /nutritionlogs/:id/fooditems/:foodItemId
 export const updateNutritionLogFoodItem = async (req, res) => {
   const { id, foodItemId } = req.params;
-  const { name, calories, protein, carbs, fats } = req.body;
+  const { meal, name, amount, calories, protein, carbs, fats } = req.body;
 
   try {
     const setOps = {};
+    if (meal !== undefined) setOps["foodItems.$[item].meal"] = meal;
     if (name !== undefined) setOps["foodItems.$[item].name"] = name;
+    if (amount !== undefined) setOps["foodItems.$[item].amount"] = amount;
     if (calories !== undefined) setOps["foodItems.$[item].calories"] = calories;
     if (protein !== undefined) setOps["foodItems.$[item].protein"] = protein;
     if (carbs !== undefined) setOps["foodItems.$[item].carbs"] = carbs;
@@ -137,7 +154,7 @@ export const updateNutritionLogFoodItem = async (req, res) => {
         new: true,
         runValidators: true,
         arrayFilters: [{ "item._id": foodItemId }],
-      }
+      },
     );
 
     if (!updatedLog) {
@@ -145,7 +162,7 @@ export const updateNutritionLogFoodItem = async (req, res) => {
     }
 
     const updatedItem = updatedLog.foodItems?.find(
-      (fi) => String(fi._id) === String(foodItemId)
+      (fi) => String(fi._id) === String(foodItemId),
     );
 
     if (!updatedItem) {

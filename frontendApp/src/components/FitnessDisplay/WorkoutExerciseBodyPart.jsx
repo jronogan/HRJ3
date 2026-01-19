@@ -2,12 +2,13 @@ import React, { use, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router";
 import sharedFetch from "../../shared/sharedFetch";
 import UserContext from "../../context/user";
-import { toLocalISODate } from "./fitnessUtils";
+import { formatWord, toLocalISODate } from "./fitnessUtils";
 
 const WorkoutExerciseBodyPart = () => {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [items, setItems] = useState([]);
+  const [query, setQuery] = useState("");
   const [me, setMe] = useState(null);
   const [addingForId, setAddingForId] = useState(null);
   const [addForm, setAddForm] = useState({
@@ -20,6 +21,15 @@ const WorkoutExerciseBodyPart = () => {
   const { muscleGroup } = useParams();
   const fetchData = useMemo(() => sharedFetch(), []);
   const userCtx = use(UserContext);
+
+  const normalizedQuery = query.trim().toLowerCase();
+  const visibleItems = !normalizedQuery
+    ? items
+    : items.filter((ex) =>
+        String(ex?.exerciseName || "")
+          .toLowerCase()
+          .includes(normalizedQuery),
+      );
 
   useEffect(() => {
     const load = async () => {
@@ -158,6 +168,28 @@ const WorkoutExerciseBodyPart = () => {
         <span style={{ textTransform: "capitalize" }}>{muscleGroup}</span>
       </h2>
 
+      <div className="fitnessCard" style={{ marginBottom: 12 }}>
+        <div className="fitnessRow" style={{ justifyContent: "space-between" }}>
+          <div className="fitnessField" style={{ flex: "1 1 320px" }}>
+            <label>Search exercises</label>
+            <input
+              className="fitnessInput"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="e.g. curl, press, barbell"
+            />
+          </div>
+          <button
+            className="fitnessButton"
+            onClick={() => setQuery("")}
+            disabled={!query.trim().length}
+            type="button"
+          >
+            Clear
+          </button>
+        </div>
+      </div>
+
       {isLoading && <p>Loading exercises…</p>}
 
       {error && !isLoading && (
@@ -166,12 +198,12 @@ const WorkoutExerciseBodyPart = () => {
         </div>
       )}
 
-      {!isLoading && !error && items.length === 0 && (
+      {!isLoading && !error && visibleItems.length === 0 && (
         <p>No exercises found for this body part.</p>
       )}
 
       <div style={{ display: "grid", gap: 16 }}>
-        {items.map((ex) => {
+        {visibleItems.map((ex) => {
           const id = ex?._id ?? `${ex?.exerciseName}-${ex?.equipment}`;
           const instructionsLines = String(ex?.instructions || "")
             .split("\n")
@@ -202,7 +234,7 @@ const WorkoutExerciseBodyPart = () => {
               >
                 <div style={{ minWidth: 240, flex: "1 1 360px" }}>
                   <h3 style={{ marginTop: 0, marginBottom: 8 }}>
-                    {ex?.exerciseName || "Unnamed exercise"}
+                    {formatWord(ex?.exerciseName) || "Unnamed exercise"}
                   </h3>
 
                   <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>

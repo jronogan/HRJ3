@@ -179,3 +179,36 @@ export const getMe = async (req, res) => {
     res.status(500).json({ message: "Error fetching current user" });
   }
 };
+
+// Update Current User
+export const updateMe = async (req, res) => {
+  try {
+    const userId = req.decoded?.id;
+    if (!userId) {
+      return res.status(401).json({ message: "Invalid token" });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update user fields
+    const { name, email, password, goal, height, weight, gender, age } =
+      req.body;
+    if (name) user.name = name;
+    if (email) user.email = email;
+    if (password) user.password = await bcrypt.hash(password, 12);
+    if (goal) user.goal = goal;
+    if (height) user.height = height;
+    if (weight) user.weight = weight;
+    if (gender) user.gender = gender;
+    if (age) user.age = age;
+
+    await user.save();
+
+    res.status(200).json({ message: "User updated successfully", user });
+  } catch (error) {
+    res.status(500).json({ message: "Error updating user" });
+  }
+};
