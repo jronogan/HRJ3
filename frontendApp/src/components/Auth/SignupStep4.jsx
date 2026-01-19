@@ -154,41 +154,18 @@ const SignupStep4 = ({
                   {day.charAt(0).toUpperCase() + day.slice(1)}
                 </label>
                 <div className="day-multiselect-grid">
-                  <div className="muscle-section">
-                    <div className="section-label">Upper</div>
-                    <div className="muscle-row">
-                      {MUSCLE_GROUPS_ROW_1.map((muscle) => (
-                        <label key={muscle.value} className="checkbox-label">
-                          <input
-                            type="checkbox"
-                            className="checkbox-input"
-                            checked={selectedMuscles.includes(muscle.value)}
-                            onChange={() =>
-                              handleToggleGroup(day, muscle.value)
-                            }
-                          />
-                          <span className="checkbox-text">{muscle.label}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="muscle-section">
-                    <div className="section-label">Lower</div>
-                    <div className="muscle-row">
-                      {MUSCLE_GROUPS_ROW_2.map((muscle) => (
-                        <label key={muscle.value} className="checkbox-label">
-                          <input
-                            type="checkbox"
-                            className="checkbox-input"
-                            checked={selectedMuscles.includes(muscle.value)}
-                            onChange={() =>
-                              handleToggleGroup(day, muscle.value)
-                            }
-                          />
-                          <span className="checkbox-text">{muscle.label}</span>
-                        </label>
-                      ))}
-                    </div>
+                  <div className="muscle-row">
+                    {MUSCLE_GROUPS.map((muscle) => (
+                      <label key={muscle.value} className="checkbox-label">
+                        <input
+                          type="checkbox"
+                          className="checkbox-input"
+                          checked={selectedMuscles.includes(muscle.value)}
+                          onChange={() => handleToggleGroup(day, muscle.value)}
+                        />
+                        <span className="checkbox-text">{muscle.label}</span>
+                      </label>
+                    ))}
                   </div>
                 </div>
                 {selectedMuscles.length === 0 && (
