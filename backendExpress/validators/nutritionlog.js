@@ -6,6 +6,10 @@ export const validateNutritionLogIdParam = [
   param("id").isMongoId().withMessage("id must be a valid Mongo ObjectId"),
 ];
 
+export const validateUserIdParam = [
+  param("userId").isMongoId().withMessage("id must be a valid Mongo ObjectId"),
+];
+
 export const validateNutritionLogFoodItemParams = [
   param("id").isMongoId().withMessage("id must be a valid Mongo ObjectId"),
   param("foodItemId")

@@ -4,6 +4,7 @@ import {
   deleteNutritionLog,
   getNutritionLogById,
   getNutritionLogs,
+  getNutritionLogsByUserId,
   patchNutritionLog,
   updateNutritionLog,
   updateNutritionLogFoodItem,
@@ -16,6 +17,7 @@ import {
   validateNutritionLogIdParam,
   validateNutritionLogPatch,
   validateNutritionLogUpdate,
+  validateUserIdParam,
 } from "../validators/nutritionlog.js";
 import { isSignedIn } from "../middleware/is-signed-in.js";
 
@@ -28,6 +30,13 @@ router.get(
   validateNutritionLogIdParam,
   validate,
   getNutritionLogById
+);
+router.get(
+  "/users/:userId",
+  isSignedIn,
+  validateUserIdParam,
+  validate,
+  getNutritionLogsByUserId
 );
 router.post(
   "/",

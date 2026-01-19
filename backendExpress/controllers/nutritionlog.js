@@ -23,6 +23,16 @@ export const getNutritionLogById = async (req, res) => {
   }
 };
 
+export const getNutritionLogsByUserId = async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const log = await NutritionLog.find({ userId });
+    res.json(log);
+  } catch (error) {
+    res.status(400).json({ message: "Error fetching nutrition logs" });
+  }
+};
+
 export const createNutritionLog = async (req, res) => {
   const { userId, foodItems, date, meal } = req.body;
 

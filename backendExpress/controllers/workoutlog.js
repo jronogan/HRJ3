@@ -19,7 +19,6 @@ export const getWorkoutLogsByUserId = async (req, res) => {
   }
 };
 
-
 export const createWorkoutLog = async (req, res) => {
   const { userId, date, exercises } = req.body;
 
@@ -28,6 +27,7 @@ export const createWorkoutLog = async (req, res) => {
     await newLog.save();
     res.status(201).json(newLog);
   } catch (error) {
+    console.error(error.message);
     res.status(500).json({ message: "Error creating workout log" });
   }
 };
