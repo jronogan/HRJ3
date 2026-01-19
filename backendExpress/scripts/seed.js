@@ -7,6 +7,7 @@ import WorkoutGoal from "../models/WorkoutGoal.js";
 import NutritionGoal from "../models/NutritionGoal.js";
 import WorkoutLog from "../models/WorkoutLog.js";
 import NutritionLog from "../models/NutritionLog.js";
+import WorkoutExercise from "../models/WorkoutExercises.js";
 
 const requiredEnv = ["MONGO_URI"];
 for (const key of requiredEnv) {
@@ -62,18 +63,18 @@ const seed = async () => {
       daysPerWeek: 3,
       schedule: {
         monday: { muscleGroups: ["cardio"] },
-        wednesday: { muscleGroups: ["core"] },
-        friday: { muscleGroups: ["legs", "cardio"] },
+        wednesday: { muscleGroups: ["waist"] },
+        friday: { muscleGroups: ["upper legs", "cardio"] },
       },
     },
     {
       userId: bob._id,
       daysPerWeek: 5,
       schedule: {
-        monday: { muscleGroups: ["chest", "triceps"] },
-        tuesday: { muscleGroups: ["back", "biceps"] },
-        thursday: { muscleGroups: ["legs"] },
-        friday: { muscleGroups: ["shoulders", "core"] },
+        monday: { muscleGroups: ["chest", "upper arms"] },
+        tuesday: { muscleGroups: ["back", "upper arms"] },
+        thursday: { muscleGroups: ["upper legs"] },
+        friday: { muscleGroups: ["shoulders", "waist"] },
       },
     },
   ]);
@@ -113,19 +114,33 @@ const seed = async () => {
         {
           name: "Treadmill Running",
           muscleGroup: "cardio",
+          weight: 0,
           sets: 1,
           repetitions: 30,
         },
-        { name: "Plank", muscleGroup: "core", sets: 3, repetitions: 60 },
+        {
+          name: "Plank",
+          muscleGroup: "waist",
+          weight: 0,
+          sets: 3,
+          repetitions: 60,
+        },
       ],
     },
     {
       userId: bob._id,
       exercises: [
-        { name: "Bench Press", muscleGroup: "chest", sets: 5, repetitions: 5 },
+        {
+          name: "Bench Press",
+          muscleGroup: "chest",
+          weight: 185,
+          sets: 5,
+          repetitions: 5,
+        },
         {
           name: "Tricep Pushdown",
-          muscleGroup: "triceps",
+          muscleGroup: "upper arms",
+          weight: 60,
           sets: 3,
           repetitions: 12,
         },
@@ -166,17 +181,21 @@ const seed = async () => {
           id: u._id.toString(),
           email: u.email,
         })),
+        workoutExercises: [pushUp, barbellBench, plank].map((e) => ({
+          id: e._id.toString(),
+          name: e.exerciseName,
+        })),
         workoutGoals: [aliceWorkoutGoal, bobWorkoutGoal].map((g) =>
-          g._id.toString()
+          g._id.toString(),
         ),
         nutritionGoals: [aliceNutritionGoal, bobNutritionGoal].map((g) =>
-          g._id.toString()
+          g._id.toString(),
         ),
         loginPassword: "password123",
       },
       null,
-      2
-    )
+      2,
+    ),
   );
 
   await mongoose.disconnect();

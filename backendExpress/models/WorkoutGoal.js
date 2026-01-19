@@ -1,17 +1,15 @@
 import mongoose from "mongoose";
 
 const muscleGroupValues = [
-  "chest",
-  "back",
-  "legs",
+  "lower arms",
   "shoulders",
-  "arms",
-  "biceps",
-  "triceps",
-  "core",
   "cardio",
-  "full_body",
-  "other",
+  "upper arms",
+  "chest",
+  "lower legs",
+  "back",
+  "upper legs",
+  "waist",
 ];
 
 const workoutDaySchema = new mongoose.Schema(
@@ -22,7 +20,7 @@ const workoutDaySchema = new mongoose.Schema(
       default: [],
     },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const workoutScheduleSchema = new mongoose.Schema(
@@ -35,7 +33,7 @@ const workoutScheduleSchema = new mongoose.Schema(
     saturday: { type: workoutDaySchema, default: () => ({}) },
     sunday: { type: workoutDaySchema, default: () => ({}) },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const WorkoutGoalSchema = new mongoose.Schema({

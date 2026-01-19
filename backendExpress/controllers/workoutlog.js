@@ -9,6 +9,17 @@ export const getWorkoutLogs = async (req, res) => {
   }
 };
 
+export const getWorkoutLogsByUserId = async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const logs = await workoutLog.find({ userId });
+    res.status(200).json(logs);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching workout logs" });
+  }
+};
+
+
 export const createWorkoutLog = async (req, res) => {
   const { userId, date, exercises } = req.body;
 

@@ -4,6 +4,12 @@ export const validateWorkoutLogIdParam = [
   param("id").isMongoId().withMessage("id must be a valid Mongo ObjectId"),
 ];
 
+export const validateWorkoutLogUserIdParam = [
+  param("userId")
+    .isMongoId()
+    .withMessage("userId must be a valid Mongo ObjectId"),
+];
+
 export const validateWorkoutLogCreate = [
   body("userId")
     .isMongoId()
@@ -23,6 +29,9 @@ export const validateWorkoutLogCreate = [
     .trim()
     .notEmpty()
     .withMessage("exercise muscleGroup is required"),
+  body("exercises.*.weight")
+    .isNumeric()
+    .withMessage("exercise weight must be a number"),
   body("exercises.*.sets")
     .isInt({ min: 1 })
     .withMessage("exercise sets must be an integer >= 1"),
@@ -50,6 +59,10 @@ export const validateWorkoutLogUpdate = [
     .trim()
     .notEmpty()
     .withMessage("exercise muscleGroup is required"),
+  body("exercises.*.weight")
+    .optional()
+    .isNumeric()
+    .withMessage("exercise weight must be a number"),
   body("exercises.*.sets")
     .optional()
     .isInt({ min: 1 })

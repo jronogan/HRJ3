@@ -12,7 +12,11 @@ export const isSignedIn = (req, res, next) => {
     return res.status(401).json({ message: "No token provided" });
   }
 
-  const decoded = jwt.verify(token, process.env.SECRET_ACCESS_KEY);
-  req.decoded = decoded;
-  next();
+  try {
+    const decoded = jwt.verify(token, process.env.SECRET_ACCESS_KEY);
+    req.decoded = decoded;
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: "Invalid or expired token" });
+  }
 };

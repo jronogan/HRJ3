@@ -11,6 +11,7 @@ import nutritionLogRouter from "./routers/nutritionlog.js";
 import workoutGoalRouter from "./routers/workoutgoal.js";
 import nutritionGoalRouter from "./routers/nutritiongoal.js";
 import userRouter from "./routers/user.js";
+import workoutExerciseRouter from "./routers/workoutexercise.js";
 
 const app = express();
 connectDB();
@@ -21,13 +22,14 @@ app.use(
   rateLimiter({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 100, // Limit each IP to 100 requests per windowMs
-  })
+  }),
 );
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use("/workoutlogs", workoutLogRouter);
+app.use("/workoutexercises", workoutExerciseRouter);
 app.use("/nutritionlogs", nutritionLogRouter);
 app.use("/workoutgoals", workoutGoalRouter);
 app.use("/nutritiongoals", nutritionGoalRouter);
