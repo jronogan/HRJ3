@@ -89,5 +89,3 @@ export const validateUserLogin = [
   body("email").isEmail().withMessage("valid email is required"),
   body("password").notEmpty().withMessage("password is required"),
 ];
-
-export const validateUserRefresh = [];

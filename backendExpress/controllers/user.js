@@ -84,12 +84,10 @@ export const createUser = async (req, res) => {
     } catch (goalError) {
       // If goals fail, clean up the user so registration stays all-or-nothing
       await User.findByIdAndDelete(newUser._id);
-      return res
-        .status(500)
-        .json({
-          message: "Error creating user goals",
-          error: goalError.message,
-        });
+      return res.status(500).json({
+        message: "Error creating user goals",
+        error: goalError.message,
+      });
     }
 
     res.status(201).json({
@@ -135,31 +133,27 @@ export const loginUser = async (req, res) => {
 // refresh user
 
 export const refreshUser = async (req, res) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader) {
-    return res.status(401).json({ message: "No authorization" });
-  }
+  try {
+    const decoded = jwt.verify(
+      req.body.refresh,
+      process.env.SECRET_REFRESH_KEY,
+    );
 
-  const token = authHeader.split(" ")[1];
-  if (!token) {
-    return res.status(401).json({ message: "No token provided" });
-  }
-
-  jwt.verify(token, process.env.SECRET_REFRESH_KEY, (err, user) => {
-    if (err) {
-      return res.status(403).json({ message: "Invalid token" });
-    }
-
-    const newAccessToken = jwt.sign(
-      { id: user.id },
+    const access = jwt.sign(
+      {
+        id: decoded._id,
+      },
       process.env.SECRET_ACCESS_KEY,
       {
         expiresIn: "15m",
-      }
+        jwtid: uuidv4(),
+      },
     );
-
-    res.status(200).json(newAccessToken);
-  });
+    res.json({ access });
+  } catch (error) {
+    console.error(error.message);
+    res.status(400).json({ status: "error", msg: "error refreshing token" });
+  }
 };
 
 // get current user (requires Authorization: Bearer <accessToken>)
