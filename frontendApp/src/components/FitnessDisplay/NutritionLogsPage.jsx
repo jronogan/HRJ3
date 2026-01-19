@@ -26,6 +26,15 @@ const NutritionLogsPage = () => {
   const [date, setDate] = useState(toLocalISODate(new Date()));
   const [foodItems, setFoodItems] = useState([emptyFoodItem()]);
 
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQty, setSearchQty] = useState("");
+  const [searchFood, setSearchFood] = useState("");
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchError, setSearchError] = useState(null);
+  const [searchResults, setSearchResults] = useState([]);
+  const [selectedResultIndex, setSelectedResultIndex] = useState(0);
+  const [extractRowIndex, setExtractRowIndex] = useState(0);
+
   const [editingLogId, setEditingLogId] = useState(null);
   const [editMeal, setEditMeal] = useState("breakfast");
   const [editDate, setEditDate] = useState(toLocalISODate(new Date()));
@@ -193,6 +202,89 @@ const NutritionLogsPage = () => {
     await load();
   };
 
+  const findFood = async () => {
+    setSearchError(null);
+    setSearchLoading(true);
+
+    try {
+      const apiKey = import.meta.env.VITE_NUTRITION_API_KEY;
+      if (!apiKey) {
+        setSearchError("Missing VITE_NUTRITION_API_KEY in .env");
+        setSearchLoading(false);
+        return;
+      }
+
+      const query = `${String(searchQty || "").trim()} ${String(
+        searchFood || ""
+      ).trim()}`.trim();
+
+      if (!query) {
+        setSearchError("Enter a quantity and food item to search");
+        setSearchLoading(false);
+        return;
+      }
+
+      const url = `https://api.calorieninjas.com/v1/nutrition?query=${encodeURIComponent(
+        query
+      )}`;
+
+      const res = await fetch(url, {
+        method: "GET",
+        headers: {
+          "x-api-key": apiKey,
+        },
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setSearchError(data?.msg || data?.message || "Search failed");
+        setSearchResults([]);
+        setSearchLoading(false);
+        return;
+      }
+
+      const items = Array.isArray(data?.items) ? data.items : [];
+      setSearchResults(items);
+      setSelectedResultIndex(0);
+    } catch (e) {
+      setSearchError(e?.message || "Search failed");
+      setSearchResults([]);
+    } finally {
+      setSearchLoading(false);
+    }
+  };
+
+  const extractToRow = () => {
+    const item = searchResults?.[selectedResultIndex];
+    if (!item) {
+      setSearchError("Select a result to extract");
+      return;
+    }
+
+    setFoodItems((prev) => {
+      const next = [...prev];
+      const idx = Math.min(
+        Math.max(Number(extractRowIndex) || 0, 0),
+        next.length - 1
+      );
+
+      const round = (n) =>
+        n === null || n === undefined || Number.isNaN(Number(n))
+          ? ""
+          : String(Math.round(Number(n) * 10) / 10);
+
+      next[idx] = {
+        ...next[idx],
+        name: item.name ?? next[idx].name ?? "",
+        calories: round(item.calories),
+        protein: round(item.protein_g),
+        carbs: round(item.carbohydrates_total_g),
+        fats: round(item.fat_total_g),
+      };
+      return next;
+    });
+  };
+
   if (isLoading) {
     return <div className="fitnessCard">Loading nutrition logs...</div>;
   }
@@ -219,7 +311,10 @@ const NutritionLogsPage = () => {
       <div className="fitnessCard" style={{ marginBottom: "1rem" }}>
         <h3>Add Nutrition Log</h3>
         <form onSubmit={createLog} className="fitnessGrid">
-          <div className="fitnessRow" style={{ gridColumn: "1 / -1" }}>
+          <div
+            className="fitnessRow"
+            style={{ gridColumn: "1 / -1", alignItems: "flex-end" }}
+          >
             <div className="fitnessField">
               <label>Date</label>
               <input
@@ -243,7 +338,135 @@ const NutritionLogsPage = () => {
                 <option value="snack">snack</option>
               </select>
             </div>
+
+            <div className="fitnessField">
+              <label>&nbsp;</label>
+              <button
+                type="button"
+                className="fitnessButton"
+                onClick={() => setIsSearchOpen((v) => !v)}
+              >
+                Search
+              </button>
+            </div>
           </div>
+
+          {isSearchOpen ? (
+            <div style={{ gridColumn: "1 / -1" }}>
+              <div className="fitnessRow" style={{ alignItems: "flex-end" }}>
+                <div className="fitnessField">
+                  <label>Quantity</label>
+                  <input
+                    className="fitnessInput"
+                    value={searchQty}
+                    onChange={(e) => setSearchQty(e.target.value)}
+                    placeholder="e.g. 2"
+                    disabled={searchLoading}
+                  />
+                </div>
+                <div className="fitnessField">
+                  <label>Food item</label>
+                  <input
+                    className="fitnessInput"
+                    value={searchFood}
+                    onChange={(e) => setSearchFood(e.target.value)}
+                    placeholder="e.g. banana"
+                    disabled={searchLoading}
+                  />
+                </div>
+                <div className="fitnessField">
+                  <label>&nbsp;</label>
+                  <button
+                    type="button"
+                    className="fitnessButtonPrimary"
+                    onClick={findFood}
+                    disabled={searchLoading}
+                  >
+                    {searchLoading ? "Finding..." : "Find"}
+                  </button>
+                </div>
+              </div>
+
+              {searchError ? (
+                <div className="fitnessError" style={{ marginTop: "0.5rem" }}>
+                  {searchError}
+                </div>
+              ) : null}
+
+              {searchResults.length ? (
+                <div
+                  className="fitnessTableWrap"
+                  style={{ marginTop: "0.75rem" }}
+                >
+                  <table className="fitnessTable">
+                    <thead>
+                      <tr>
+                        <th></th>
+                        <th>Food</th>
+                        <th>Serving (g)</th>
+                        <th>Calories</th>
+                        <th>Protein</th>
+                        <th>Carbs</th>
+                        <th>Fats</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {searchResults.map((r, idx) => (
+                        <tr key={`${r.name}-${idx}`}>
+                          <td>
+                            <input
+                              type="radio"
+                              name="nutritionSearchPick"
+                              checked={selectedResultIndex === idx}
+                              onChange={() => setSelectedResultIndex(idx)}
+                            />
+                          </td>
+                          <td>{r.name}</td>
+                          <td>{r.serving_size_g ?? "—"}</td>
+                          <td>{r.calories ?? "—"}</td>
+                          <td>{r.protein_g ?? "—"}</td>
+                          <td>{r.carbohydrates_total_g ?? "—"}</td>
+                          <td>{r.fat_total_g ?? "—"}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : null}
+
+              {searchResults.length ? (
+                <div
+                  className="fitnessRow"
+                  style={{ marginTop: "0.75rem", alignItems: "flex-end" }}
+                >
+                  <div className="fitnessField">
+                    <label>Extract to row</label>
+                    <select
+                      className="fitnessInput"
+                      value={extractRowIndex}
+                      onChange={(e) => setExtractRowIndex(e.target.value)}
+                    >
+                      {foodItems.map((_, idx) => (
+                        <option key={idx} value={idx}>
+                          Row {idx + 1}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="fitnessField">
+                    <label>&nbsp;</label>
+                    <button
+                      type="button"
+                      className="fitnessButton"
+                      onClick={extractToRow}
+                    >
+                      Extract
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
 
           <div className="fitnessTableWrap" style={{ gridColumn: "1 / -1" }}>
             <table className="fitnessTable">

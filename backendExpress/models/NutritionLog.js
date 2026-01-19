@@ -1,18 +1,10 @@
 import mongoose from "mongoose";
 
-const mealValues = ["breakfast", "lunch", "dinner", "snack"];
-
 const NutritionLogSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   foodItems: [
     {
-      meal: {
-        type: String,
-        enum: mealValues,
-        required: true,
-      },
       name: { type: String, required: true },
-      amount: { type: String, required: false },
       calories: { type: Number, optional: true },
       protein: { type: Number, optional: true },
       carbs: { type: Number, optional: true },
@@ -20,6 +12,11 @@ const NutritionLogSchema = new mongoose.Schema({
     },
   ],
   date: { type: Date, default: Date.now },
+  meal: {
+    type: String,
+    enum: ["breakfast", "lunch", "dinner", "snack"],
+    required: true,
+  },
 });
 
 const NutritionLog = mongoose.model("NutritionLog", NutritionLogSchema);
