@@ -7,7 +7,7 @@ import WorkoutGoal from "../models/WorkoutGoal.js";
 import NutritionGoal from "../models/NutritionGoal.js";
 import WorkoutLog from "../models/WorkoutLog.js";
 import NutritionLog from "../models/NutritionLog.js";
-import WorkoutExercise from "../models/WorkoutExercises.js";
+// import WorkoutExercise from "../models/WorkoutExercises.js";
 
 const requiredEnv = ["MONGO_URI"];
 for (const key of requiredEnv) {
@@ -28,6 +28,7 @@ const seed = async () => {
     NutritionGoal.deleteMany({}),
     WorkoutLog.deleteMany({}),
     NutritionLog.deleteMany({}),
+    // WorkoutExercise.deleteMany({}),
   ]);
 
   const passwordHash = await bcrypt.hash("password123", 12);
@@ -106,8 +107,36 @@ const seed = async () => {
     },
   ]);
 
+  // Exercise library
+  // const [pushUp, barbellBench, plank] = await WorkoutExercise.create([
+  //   {
+  //     exerciseName: "Push-up",
+  //     exerciseGif: "https://static.exercisedb.dev/media/push-up.gif",
+  //     exerciseBodyParts: "chest",
+  //     instructions:
+  //       "Start in a high plank. Lower your body until your chest is close to the floor, then press back up.",
+  //     equipment: "body weight",
+  //   },
+  //   {
+  //     exerciseName: "Barbell Bench Press",
+  //     exerciseGif: "https://static.exercisedb.dev/media/bench-press.gif",
+  //     exerciseBodyParts: "chest",
+  //     instructions:
+  //       "Lie on a bench. Unrack the bar, lower it to your mid-chest with control, then press to lockout.",
+  //     equipment: "barbell",
+  //   },
+  //   {
+  //     exerciseName: "Plank",
+  //     exerciseGif: "https://static.exercisedb.dev/media/plank.gif",
+  //     exerciseBodyParts: "waist",
+  //     instructions:
+  //       "Hold a straight line from head to heels, bracing your core. Avoid sagging hips.",
+  //     equipment: "body weight",
+  //   },
+  // ]);
+
   // Logs
-  await WorkoutLog.create([
+  const workoutLogs = await WorkoutLog.create([
     {
       userId: alice._id,
       exercises: [
@@ -148,27 +177,51 @@ const seed = async () => {
     },
   ]);
 
-  await NutritionLog.create([
+  const nutritionLogs = await NutritionLog.create([
     {
       userId: alice._id,
-      meal: "breakfast",
       foodItems: [
-        { name: "Oatmeal", calories: 300, protein: 10, carbs: 55, fats: 6 },
-        { name: "Greek Yogurt", calories: 120, protein: 16, carbs: 6, fats: 0 },
+        {
+          meal: "breakfast",
+          name: "Oatmeal",
+          amount: "1 bowl",
+          calories: 300,
+          protein: 10,
+          carbs: 55,
+          fats: 6,
+        },
+        {
+          meal: "breakfast",
+          name: "Greek Yogurt",
+          amount: "1 cup",
+          calories: 120,
+          protein: 16,
+          carbs: 6,
+          fats: 0,
+        },
       ],
     },
     {
       userId: bob._id,
-      meal: "dinner",
       foodItems: [
         {
+          meal: "dinner",
           name: "Chicken Breast",
+          amount: "200g",
           calories: 250,
           protein: 45,
           carbs: 0,
           fats: 5,
         },
-        { name: "Rice", calories: 350, protein: 7, carbs: 75, fats: 1 },
+        {
+          meal: "dinner",
+          name: "Rice",
+          amount: "1.5 cups",
+          calories: 350,
+          protein: 7,
+          carbs: 75,
+          fats: 1,
+        },
       ],
     },
   ]);
@@ -181,10 +234,8 @@ const seed = async () => {
           id: u._id.toString(),
           email: u.email,
         })),
-        workoutExercises: [pushUp, barbellBench, plank].map((e) => ({
-          id: e._id.toString(),
-          name: e.exerciseName,
-        })),
+        workoutLogs: workoutLogs.map((l) => l._id.toString()),
+        nutritionLogs: nutritionLogs.map((l) => l._id.toString()),
         workoutGoals: [aliceWorkoutGoal, bobWorkoutGoal].map((g) =>
           g._id.toString(),
         ),
