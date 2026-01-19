@@ -505,11 +505,69 @@ const FitnessDashboard = () => {
 
           <div className="fitnessMuted">
             Planned today ({dayKey}):{" "}
-            {plannedGroups.length ? plannedGroups.join(", ") : "rest"}
+            {plannedGroups.length ? (
+              <span
+                style={{
+                  display: "inline-flex",
+                  flexWrap: "wrap",
+                  gap: "6px",
+                  marginLeft: "8px",
+                }}
+              >
+                {plannedGroups.map((group) => (
+                  <span
+                    key={group}
+                    style={{
+                      backgroundColor: "#edf2f7",
+                      color: "#667eea",
+                      padding: "2px 8px",
+                      borderRadius: "10px",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      textTransform: "capitalize",
+                      border: "1px solid #cbd5e0",
+                    }}
+                  >
+                    {group}
+                  </span>
+                ))}
+              </span>
+            ) : (
+              "rest"
+            )}
           </div>
           <div className="fitnessMuted">
             Completed today:{" "}
-            {completedGroups.length ? completedGroups.join(", ") : "none"}
+            {completedGroups.length ? (
+              <span
+                style={{
+                  display: "inline-flex",
+                  flexWrap: "wrap",
+                  gap: "6px",
+                  marginLeft: "8px",
+                }}
+              >
+                {completedGroups.map((group) => (
+                  <span
+                    key={group}
+                    style={{
+                      backgroundColor: "#f0fdf4",
+                      color: "#16a34a",
+                      padding: "2px 8px",
+                      borderRadius: "10px",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      textTransform: "capitalize",
+                      border: "1px solid #86efac",
+                    }}
+                  >
+                    {group}
+                  </span>
+                ))}
+              </span>
+            ) : (
+              "none"
+            )}
           </div>
 
           <div
@@ -571,7 +629,39 @@ const FitnessDashboard = () => {
                   return (
                     <tr key={d}>
                       <td style={{ textTransform: "capitalize" }}>{d}</td>
-                      <td>{groups.length ? groups.join(", ") : "—"}</td>
+                      <td>
+                        {groups.length ? (
+                          <div
+                            style={{
+                              display: "flex",
+                              flexWrap: "wrap",
+                              gap: "6px",
+                            }}
+                          >
+                            {groups.map((group) => (
+                              <span
+                                key={group}
+                                className="muscle-badge"
+                                style={{
+                                  display: "inline-block",
+                                  backgroundColor: "#edf2f7",
+                                  color: "#667eea",
+                                  padding: "4px 10px",
+                                  borderRadius: "12px",
+                                  fontSize: "12px",
+                                  fontWeight: 600,
+                                  textTransform: "capitalize",
+                                  border: "1px solid #cbd5e0",
+                                }}
+                              >
+                                {group}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          "—"
+                        )}
+                      </td>
                       <td>
                         <button
                           className="fitnessButton"
