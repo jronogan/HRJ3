@@ -9,6 +9,7 @@ const emptyExercise = () => ({
   muscleGroup: "chest",
   sets: "",
   repetitions: "",
+  weight: "",
 });
 
 const WorkoutLogsPage = () => {
@@ -94,6 +95,7 @@ const WorkoutLogsPage = () => {
         muscleGroup: ex.muscleGroup,
         sets: Number(ex.sets),
         repetitions: Number(ex.repetitions),
+        weight: Number(ex.weight),
       }));
 
     if (!clean.length) {
@@ -147,6 +149,7 @@ const WorkoutLogsPage = () => {
         muscleGroup: ex.muscleGroup ?? "chest",
         sets: ex.sets ?? "",
         repetitions: ex.repetitions ?? "",
+        weight: ex.weight ?? "",
       })),
     );
   };
@@ -162,6 +165,7 @@ const WorkoutLogsPage = () => {
         muscleGroup: ex.muscleGroup,
         sets: Number(ex.sets),
         repetitions: Number(ex.repetitions),
+        weight: Number(ex.weight),
       }));
 
     const body = {
@@ -232,6 +236,7 @@ const WorkoutLogsPage = () => {
                   <th>Muscle Group</th>
                   <th>Sets</th>
                   <th>Reps</th>
+                  <th>Weight (kg)</th>
                   <th></th>
                 </tr>
               </thead>
@@ -242,6 +247,7 @@ const WorkoutLogsPage = () => {
                       <input
                         className="fitnessInput"
                         value={ex.name}
+                        placeholder="Exercise"
                         onChange={(e) => {
                           const next = [...exercises];
                           next[idx] = { ...next[idx], name: e.target.value };
@@ -284,6 +290,7 @@ const WorkoutLogsPage = () => {
                       <input
                         className="fitnessInput"
                         value={ex.sets}
+                        placeholder="Sets"
                         onChange={(e) => {
                           const next = [...exercises];
                           next[idx] = { ...next[idx], sets: e.target.value };
@@ -295,11 +302,27 @@ const WorkoutLogsPage = () => {
                       <input
                         className="fitnessInput"
                         value={ex.repetitions}
+                        placeholder="Reps"
                         onChange={(e) => {
                           const next = [...exercises];
                           next[idx] = {
                             ...next[idx],
                             repetitions: e.target.value,
+                          };
+                          setExercises(next);
+                        }}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        className="fitnessInput"
+                        value={ex.weight}
+                        placeholder="Weight"
+                        onChange={(e) => {
+                          const next = [...exercises];
+                          next[idx] = {
+                            ...next[idx],
+                            weight: e.target.value,
                           };
                           setExercises(next);
                         }}
@@ -425,6 +448,7 @@ const WorkoutLogsPage = () => {
                         <th>Muscle Group</th>
                         <th>Sets</th>
                         <th>Reps</th>
+                        <th>Weight</th>
                         <th></th>
                       </tr>
                     </thead>
@@ -505,6 +529,22 @@ const WorkoutLogsPage = () => {
                             />
                           </td>
                           <td>
+                            <input
+                              className="fitnessInput"
+                              value={ex.weight}
+                              onChange={(e) => {
+                                const next = [...editExercises];
+                                next[idx] = {
+                                  ...next[idx],
+                                  weight: e.target.value,
+                                };
+                                setEditExercises(next);
+                              }}
+                            />
+                            {" kg"}
+                          </td>
+
+                          <td>
                             <button
                               type="button"
                               className="fitnessButton"
@@ -547,6 +587,7 @@ const WorkoutLogsPage = () => {
                       <th>Group</th>
                       <th>Sets</th>
                       <th>Reps</th>
+                      <th>Weight</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -556,6 +597,7 @@ const WorkoutLogsPage = () => {
                         <td>{ex.muscleGroup}</td>
                         <td>{ex.sets}</td>
                         <td>{ex.repetitions}</td>
+                        <td>{ex.weight} kg</td>
                       </tr>
                     ))}
                   </tbody>

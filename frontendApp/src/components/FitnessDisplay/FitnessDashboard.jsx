@@ -225,10 +225,11 @@ const FitnessDashboard = () => {
   const workoutByGroup = todaysWorkoutLogs.reduce((acc, log) => {
     const map = sumWorkoutLog(log);
     for (const [muscleGroup, stats] of map.entries()) {
-      const prev = acc.get(muscleGroup) || { sets: 0, reps: 0 };
+      const prev = acc.get(muscleGroup) || { sets: 0, reps: 0, weight: 0 };
       acc.set(muscleGroup, {
         sets: prev.sets + stats.sets,
         reps: prev.reps + stats.reps,
+        weight: prev.weight + stats.weight,
       });
     }
     return acc;
