@@ -64,7 +64,7 @@ const FitnessDashboard = () => {
       "/users/me",
       "GET",
       undefined,
-      userCtx.accessToken
+      userCtx.accessToken,
     );
     if (!meRes.ok) {
       setIsLoading(false);
@@ -87,13 +87,13 @@ const FitnessDashboard = () => {
         `/nutritionlogs/users/${userId}`,
         "GET",
         undefined,
-        userCtx.accessToken
+        userCtx.accessToken,
       ),
       fetchData(
-        `/workoutlogs/users/${userId}`,
+        `/workoutlogs/user/${userId}`,
         "GET",
         undefined,
-        userCtx.accessToken
+        userCtx.accessToken,
       ),
     ]);
 
@@ -124,7 +124,7 @@ const FitnessDashboard = () => {
   const workoutGoal = me?.workoutGoal;
 
   const todaysNutritionLogs = nutritionLogs.filter(
-    (l) => toLocalISODate(l?.date) === selectedDate
+    (l) => toLocalISODate(l?.date) === selectedDate,
   );
 
   const nutritionTotals = todaysNutritionLogs.reduce(
@@ -137,7 +137,7 @@ const FitnessDashboard = () => {
         fats: acc.fats + t.fats,
       };
     },
-    { calories: 0, protein: 0, carbs: 0, fats: 0 }
+    { calories: 0, protein: 0, carbs: 0, fats: 0 },
   );
 
   const calorieGoal = nutritionGoal?.caloriesPerDay ?? 0;
@@ -219,28 +219,29 @@ const FitnessDashboard = () => {
   });
 
   const todaysWorkoutLogs = workoutLogs.filter(
-    (l) => toLocalISODate(l?.date) === selectedDate
+    (l) => toLocalISODate(l?.date) === selectedDate,
   );
 
   const workoutByGroup = todaysWorkoutLogs.reduce((acc, log) => {
     const map = sumWorkoutLog(log);
     for (const [muscleGroup, stats] of map.entries()) {
-      const prev = acc.get(muscleGroup) || { sets: 0, reps: 0 };
+      const prev = acc.get(muscleGroup) || { sets: 0, reps: 0, weight: 0 };
       acc.set(muscleGroup, {
         sets: prev.sets + stats.sets,
         reps: prev.reps + stats.reps,
+        weight: prev.weight + stats.weight,
       });
     }
     return acc;
   }, new Map());
 
   const workoutGroupChart = Array.from(workoutByGroup.entries()).map(
-    ([muscleGroup, stats]) => ({ muscleGroup, sets: stats.sets })
+    ([muscleGroup, stats]) => ({ muscleGroup, sets: stats.sets }),
   );
 
   const workoutDailyChartHeight = Math.max(
     240,
-    (workoutGroupChart.length || 0) * 28 + 40
+    (workoutGroupChart.length || 0) * 28 + 40,
   );
 
   const dayKey = weekdayKeyForDate(selectedDate);
@@ -296,8 +297,8 @@ const FitnessDashboard = () => {
                         slice.name === "Consumed" || slice.name === "Goal"
                           ? COLORS.caloriesConsumed
                           : slice.name === "Overflow"
-                          ? COLORS.caloriesOverflow
-                          : COLORS.caloriesRemaining;
+                            ? COLORS.caloriesOverflow
+                            : COLORS.caloriesRemaining;
 
                       return <Cell key={slice.name} fill={fill} />;
                     })}
@@ -349,8 +350,8 @@ const FitnessDashboard = () => {
                         row.name === "Protein"
                           ? COLORS.protein
                           : row.name === "Carbs"
-                          ? COLORS.carbs
-                          : COLORS.fats
+                            ? COLORS.carbs
+                            : COLORS.fats
                       }
                     />
                   ))}

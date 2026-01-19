@@ -9,6 +9,7 @@ const emptyExercise = () => ({
   muscleGroup: "chest",
   sets: "",
   repetitions: "",
+  weight: "",
 });
 
 const WorkoutLogsPage = () => {
@@ -37,7 +38,7 @@ const WorkoutLogsPage = () => {
       "/users/me",
       "GET",
       undefined,
-      userCtx.accessToken
+      userCtx.accessToken,
     );
     if (!meRes.ok) {
       setIsLoading(false);
@@ -55,10 +56,10 @@ const WorkoutLogsPage = () => {
     setUserId(uid);
 
     const logsRes = await fetchData(
-      `/workoutlogs/users/${uid}`,
+      `/workoutlogs/user/${uid}`,
       "GET",
       undefined,
-      userCtx.accessToken
+      userCtx.accessToken,
     );
 
     if (!logsRes.ok) {
@@ -94,6 +95,7 @@ const WorkoutLogsPage = () => {
         muscleGroup: ex.muscleGroup,
         sets: Number(ex.sets),
         repetitions: Number(ex.repetitions),
+        weight: Number(ex.weight),
       }));
 
     if (!clean.length) {
@@ -111,7 +113,7 @@ const WorkoutLogsPage = () => {
       "/workoutlogs",
       "POST",
       body,
-      userCtx.accessToken
+      userCtx.accessToken,
     );
     if (!res.ok) {
       setError(res.msg || "Failed to create workout log");
@@ -128,7 +130,7 @@ const WorkoutLogsPage = () => {
       `/workoutlogs/${id}`,
       "DELETE",
       {},
-      userCtx.accessToken
+      userCtx.accessToken,
     );
     if (!res.ok) {
       setError(res.msg || "Failed to delete workout log");
@@ -147,7 +149,8 @@ const WorkoutLogsPage = () => {
         muscleGroup: ex.muscleGroup ?? "chest",
         sets: ex.sets ?? "",
         repetitions: ex.repetitions ?? "",
-      }))
+        weight: ex.weight ?? "",
+      })),
     );
   };
 
@@ -162,6 +165,7 @@ const WorkoutLogsPage = () => {
         muscleGroup: ex.muscleGroup,
         sets: Number(ex.sets),
         repetitions: Number(ex.repetitions),
+        weight: Number(ex.weight),
       }));
 
     const body = {
@@ -175,7 +179,7 @@ const WorkoutLogsPage = () => {
       `/workoutlogs/${editingLogId}`,
       "PATCH",
       body,
-      userCtx.accessToken
+      userCtx.accessToken,
     );
     if (!res.ok) {
       setError(res.msg || "Failed to update workout log");
@@ -232,6 +236,7 @@ const WorkoutLogsPage = () => {
                   <th>Muscle Group</th>
                   <th>Sets</th>
                   <th>Reps</th>
+                  <th>Weight (kg)</th>
                   <th></th>
                 </tr>
               </thead>
@@ -242,6 +247,7 @@ const WorkoutLogsPage = () => {
                       <input
                         className="fitnessInput"
                         value={ex.name}
+                        placeholder="Exercise"
                         onChange={(e) => {
                           const next = [...exercises];
                           next[idx] = { ...next[idx], name: e.target.value };
@@ -263,15 +269,16 @@ const WorkoutLogsPage = () => {
                         }}
                       >
                         {[
-                          "chest",
-                          "back",
-                          "legs",
-                          "biceps",
-                          "triceps",
+                          "neck",
+                          "lower arms",
                           "shoulders",
                           "cardio",
-                          "core",
-                          "forearms",
+                          "upper arms",
+                          "chest",
+                          "lower legs",
+                          "back",
+                          "upper legs",
+                          "waist",
                         ].map((g) => (
                           <option key={g} value={g}>
                             {g}
@@ -283,6 +290,7 @@ const WorkoutLogsPage = () => {
                       <input
                         className="fitnessInput"
                         value={ex.sets}
+                        placeholder="Sets"
                         onChange={(e) => {
                           const next = [...exercises];
                           next[idx] = { ...next[idx], sets: e.target.value };
@@ -294,11 +302,27 @@ const WorkoutLogsPage = () => {
                       <input
                         className="fitnessInput"
                         value={ex.repetitions}
+                        placeholder="Reps"
                         onChange={(e) => {
                           const next = [...exercises];
                           next[idx] = {
                             ...next[idx],
                             repetitions: e.target.value,
+                          };
+                          setExercises(next);
+                        }}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        className="fitnessInput"
+                        value={ex.weight}
+                        placeholder="Weight"
+                        onChange={(e) => {
+                          const next = [...exercises];
+                          next[idx] = {
+                            ...next[idx],
+                            weight: e.target.value,
                           };
                           setExercises(next);
                         }}
@@ -424,6 +448,7 @@ const WorkoutLogsPage = () => {
                         <th>Muscle Group</th>
                         <th>Sets</th>
                         <th>Reps</th>
+                        <th>Weight</th>
                         <th></th>
                       </tr>
                     </thead>
@@ -458,15 +483,16 @@ const WorkoutLogsPage = () => {
                               }}
                             >
                               {[
-                                "chest",
-                                "back",
-                                "legs",
-                                "biceps",
-                                "triceps",
+                                "neck",
+                                "lower arms",
                                 "shoulders",
                                 "cardio",
-                                "core",
-                                "forearms",
+                                "upper arms",
+                                "chest",
+                                "lower legs",
+                                "back",
+                                "upper legs",
+                                "waist",
                               ].map((g) => (
                                 <option key={g} value={g}>
                                   {g}
@@ -503,15 +529,31 @@ const WorkoutLogsPage = () => {
                             />
                           </td>
                           <td>
+                            <input
+                              className="fitnessInput"
+                              value={ex.weight}
+                              onChange={(e) => {
+                                const next = [...editExercises];
+                                next[idx] = {
+                                  ...next[idx],
+                                  weight: e.target.value,
+                                };
+                                setEditExercises(next);
+                              }}
+                            />
+                            {" kg"}
+                          </td>
+
+                          <td>
                             <button
                               type="button"
                               className="fitnessButton"
                               onClick={() => {
                                 const next = editExercises.filter(
-                                  (_, i) => i !== idx
+                                  (_, i) => i !== idx,
                                 );
                                 setEditExercises(
-                                  next.length ? next : [emptyExercise()]
+                                  next.length ? next : [emptyExercise()],
                                 );
                               }}
                             >
@@ -545,6 +587,7 @@ const WorkoutLogsPage = () => {
                       <th>Group</th>
                       <th>Sets</th>
                       <th>Reps</th>
+                      <th>Weight</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -554,6 +597,7 @@ const WorkoutLogsPage = () => {
                         <td>{ex.muscleGroup}</td>
                         <td>{ex.sets}</td>
                         <td>{ex.repetitions}</td>
+                        <td>{ex.weight} kg</td>
                       </tr>
                     ))}
                   </tbody>

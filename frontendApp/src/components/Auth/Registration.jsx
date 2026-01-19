@@ -72,7 +72,7 @@ const Registration = () => {
         nutritionGoal: {
           caloriesPerDay: parseFloat(formData.nutritionGoal.caloriesPerDay),
           proteinGramsPerDay: parseFloat(
-            formData.nutritionGoal.proteinGramsPerDay
+            formData.nutritionGoal.proteinGramsPerDay,
           ),
           carbsGramsPerDay: parseFloat(formData.nutritionGoal.carbsGramsPerDay),
           fatsGramsPerDay: parseFloat(formData.nutritionGoal.fatsGramsPerDay),
@@ -86,7 +86,7 @@ const Registration = () => {
       const registerRes = await fetchData(
         "/users/register",
         "POST",
-        registrationData
+        registrationData,
       );
       if (!registerRes.ok) {
         throw new Error(registerRes.msg || "Registration failed");
@@ -100,7 +100,7 @@ const Registration = () => {
 
       if (!loginRes.ok) {
         throw new Error(
-          "Registration successful, but login failed. Please login manually."
+          "Registration successful, but login failed. Please login manually.",
         );
       }
 
@@ -109,7 +109,7 @@ const Registration = () => {
         loginData?.access ?? loginData?.accessToken ?? loginData?.token;
       if (!access) {
         throw new Error(
-          "Registration successful, but no access token was returned from login."
+          "Registration successful, but no access token was returned from login.",
         );
       }
 
@@ -182,8 +182,8 @@ const Registration = () => {
                     step === currentStep
                       ? "active"
                       : step < currentStep
-                      ? "completed"
-                      : ""
+                        ? "completed"
+                        : ""
                   }`}
                 >
                   <div className="step-number">{step}</div>
