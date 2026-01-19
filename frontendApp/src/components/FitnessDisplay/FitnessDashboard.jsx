@@ -56,6 +56,17 @@ const FitnessDashboard = () => {
 
   const [selectedDate, setSelectedDate] = useState(toLocalISODate(new Date()));
 
+  const [isEditingNutrition, setIsEditingNutrition] = useState(false);
+  const [isEditingWorkout, setIsEditingWorkout] = useState(false);
+  const [editingDay, setEditingDay] = useState(null);
+  const [nutritionForm, setNutritionForm] = useState({
+    caloriesPerDay: "",
+    proteinGramsPerDay: "",
+    carbsGramsPerDay: "",
+    fatsGramsPerDay: "",
+  });
+  const [workoutDayForm, setWorkoutDayForm] = useState([]);
+
   const loadAll = async () => {
     setIsLoading(true);
     setError(null);
@@ -64,7 +75,7 @@ const FitnessDashboard = () => {
       "/users/me",
       "GET",
       undefined,
-      userCtx.accessToken,
+      userCtx.accessToken
     );
     if (!meRes.ok) {
       setIsLoading(false);
@@ -87,13 +98,13 @@ const FitnessDashboard = () => {
         `/nutritionlogs/users/${userId}`,
         "GET",
         undefined,
-        userCtx.accessToken,
+        userCtx.accessToken
       ),
       fetchData(
         `/workoutlogs/user/${userId}`,
         "GET",
         undefined,
-        userCtx.accessToken,
+        userCtx.accessToken
       ),
     ]);
 
@@ -120,11 +131,108 @@ const FitnessDashboard = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const handleEditNutritionGoal = () => {
+    setNutritionForm({
+      caloriesPerDay: nutritionGoal?.caloriesPerDay ?? "",
+      proteinGramsPerDay: nutritionGoal?.proteinGramsPerDay ?? "",
+      carbsGramsPerDay: nutritionGoal?.carbsGramsPerDay ?? "",
+      fatsGramsPerDay: nutritionGoal?.fatsGramsPerDay ?? "",
+    });
+    setIsEditingNutrition(true);
+  };
+
+  const handleSaveNutritionGoal = async () => {
+    const nutritionGoalId = me?.nutritionGoal?._id;
+    if (!nutritionGoalId) {
+      alert("No nutrition goal ID found");
+      return;
+    }
+
+    const res = await fetchData(
+      `/nutritiongoals/${nutritionGoalId}`,
+      "PUT",
+      {
+        caloriesPerDay: parseFloat(nutritionForm.caloriesPerDay),
+        proteinGramsPerDay: parseFloat(nutritionForm.proteinGramsPerDay),
+        carbsGramsPerDay: parseFloat(nutritionForm.carbsGramsPerDay),
+        fatsGramsPerDay: parseFloat(nutritionForm.fatsGramsPerDay),
+      },
+      userCtx.accessToken
+    );
+
+    if (!res.ok) {
+      alert(res.msg || "Failed to update nutrition goal");
+      return;
+    }
+
+    setIsEditingNutrition(false);
+    await loadAll();
+  };
+
+  const handleEditWorkoutDay = (day) => {
+    const groups = workoutGoal?.schedule?.[day]?.muscleGroups ?? [];
+    setWorkoutDayForm([...groups]);
+    setEditingDay(day);
+    setIsEditingWorkout(true);
+  };
+
+  const handleToggleMuscleGroup = (muscleGroup) => {
+    setWorkoutDayForm((prev) =>
+      prev.includes(muscleGroup)
+        ? prev.filter((g) => g !== muscleGroup)
+        : [...prev, muscleGroup]
+    );
+  };
+
+  const handleSaveWorkoutDay = async () => {
+    const workoutGoalId = me?.workoutGoal?._id;
+    if (!workoutGoalId) {
+      alert("No workout goal ID found");
+      return;
+    }
+
+    const updatedSchedule = {
+      ...workoutGoal.schedule,
+      [editingDay]: { muscleGroups: workoutDayForm },
+    };
+
+    const res = await fetchData(
+      `/workoutgoals/${workoutGoalId}`,
+      "PUT",
+      {
+        daysPerWeek: workoutGoal.daysPerWeek,
+        schedule: updatedSchedule,
+      },
+      userCtx.accessToken
+    );
+
+    if (!res.ok) {
+      alert(res.msg || "Failed to update workout goal");
+      return;
+    }
+
+    setIsEditingWorkout(false);
+    setEditingDay(null);
+    await loadAll();
+  };
+
+  const MUSCLE_GROUPS = [
+    "chest",
+    "lower arms",
+    "upper arms",
+    "shoulders",
+    "lower legs",
+    "upper legs",
+    "waist",
+    "cardio",
+    "back",
+  ];
+
   const nutritionGoal = me?.nutritionGoal;
   const workoutGoal = me?.workoutGoal;
 
   const todaysNutritionLogs = nutritionLogs.filter(
-    (l) => toLocalISODate(l?.date) === selectedDate,
+    (l) => toLocalISODate(l?.date) === selectedDate
   );
 
   const nutritionTotals = todaysNutritionLogs.reduce(
@@ -137,7 +245,7 @@ const FitnessDashboard = () => {
         fats: acc.fats + t.fats,
       };
     },
-    { calories: 0, protein: 0, carbs: 0, fats: 0 },
+    { calories: 0, protein: 0, carbs: 0, fats: 0 }
   );
 
   const calorieGoal = nutritionGoal?.caloriesPerDay ?? 0;
@@ -219,7 +327,7 @@ const FitnessDashboard = () => {
   });
 
   const todaysWorkoutLogs = workoutLogs.filter(
-    (l) => toLocalISODate(l?.date) === selectedDate,
+    (l) => toLocalISODate(l?.date) === selectedDate
   );
 
   const workoutByGroup = todaysWorkoutLogs.reduce((acc, log) => {
@@ -236,12 +344,12 @@ const FitnessDashboard = () => {
   }, new Map());
 
   const workoutGroupChart = Array.from(workoutByGroup.entries()).map(
-    ([muscleGroup, stats]) => ({ muscleGroup, sets: stats.sets }),
+    ([muscleGroup, stats]) => ({ muscleGroup, sets: stats.sets })
   );
 
   const workoutDailyChartHeight = Math.max(
     240,
-    (workoutGroupChart.length || 0) * 28 + 40,
+    (workoutGroupChart.length || 0) * 28 + 40
   );
 
   const dayKey = weekdayKeyForDate(selectedDate);
@@ -297,8 +405,8 @@ const FitnessDashboard = () => {
                         slice.name === "Consumed" || slice.name === "Goal"
                           ? COLORS.caloriesConsumed
                           : slice.name === "Overflow"
-                            ? COLORS.caloriesOverflow
-                            : COLORS.caloriesRemaining;
+                          ? COLORS.caloriesOverflow
+                          : COLORS.caloriesRemaining;
 
                       return <Cell key={slice.name} fill={fill} />;
                     })}
@@ -350,8 +458,8 @@ const FitnessDashboard = () => {
                         row.name === "Protein"
                           ? COLORS.protein
                           : row.name === "Carbs"
-                            ? COLORS.carbs
-                            : COLORS.fats
+                          ? COLORS.carbs
+                          : COLORS.fats
                       }
                     />
                   ))}
@@ -367,6 +475,15 @@ const FitnessDashboard = () => {
                 <th>Consumed</th>
                 <th>Goal</th>
                 <th>%</th>
+                <th>
+                  <button
+                    className="fitnessButton"
+                    onClick={handleEditNutritionGoal}
+                    style={{ fontSize: "12px", padding: "4px 8px" }}
+                  >
+                    Edit
+                  </button>
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -376,6 +493,7 @@ const FitnessDashboard = () => {
                   <td>{Math.round(m.consumed)}g</td>
                   <td>{m.goal ? `${Math.round(m.goal)}g` : "—"}</td>
                   <td>{m.goal ? `${m.pct}%` : "—"}</td>
+                  <td></td>
                 </tr>
               ))}
             </tbody>
@@ -387,11 +505,69 @@ const FitnessDashboard = () => {
 
           <div className="fitnessMuted">
             Planned today ({dayKey}):{" "}
-            {plannedGroups.length ? plannedGroups.join(", ") : "rest"}
+            {plannedGroups.length ? (
+              <span
+                style={{
+                  display: "inline-flex",
+                  flexWrap: "wrap",
+                  gap: "6px",
+                  marginLeft: "8px",
+                }}
+              >
+                {plannedGroups.map((group) => (
+                  <span
+                    key={group}
+                    style={{
+                      backgroundColor: "#edf2f7",
+                      color: "#667eea",
+                      padding: "2px 8px",
+                      borderRadius: "10px",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      textTransform: "capitalize",
+                      border: "1px solid #cbd5e0",
+                    }}
+                  >
+                    {group}
+                  </span>
+                ))}
+              </span>
+            ) : (
+              "rest"
+            )}
           </div>
           <div className="fitnessMuted">
             Completed today:{" "}
-            {completedGroups.length ? completedGroups.join(", ") : "none"}
+            {completedGroups.length ? (
+              <span
+                style={{
+                  display: "inline-flex",
+                  flexWrap: "wrap",
+                  gap: "6px",
+                  marginLeft: "8px",
+                }}
+              >
+                {completedGroups.map((group) => (
+                  <span
+                    key={group}
+                    style={{
+                      backgroundColor: "#f0fdf4",
+                      color: "#16a34a",
+                      padding: "2px 8px",
+                      borderRadius: "10px",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      textTransform: "capitalize",
+                      border: "1px solid #86efac",
+                    }}
+                  >
+                    {group}
+                  </span>
+                ))}
+              </span>
+            ) : (
+              "none"
+            )}
           </div>
 
           <div
@@ -436,6 +612,7 @@ const FitnessDashboard = () => {
                 <tr>
                   <th>Day</th>
                   <th>Muscle groups</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -452,7 +629,48 @@ const FitnessDashboard = () => {
                   return (
                     <tr key={d}>
                       <td style={{ textTransform: "capitalize" }}>{d}</td>
-                      <td>{groups.length ? groups.join(", ") : "—"}</td>
+                      <td>
+                        {groups.length ? (
+                          <div
+                            style={{
+                              display: "flex",
+                              flexWrap: "wrap",
+                              gap: "6px",
+                            }}
+                          >
+                            {groups.map((group) => (
+                              <span
+                                key={group}
+                                className="muscle-badge"
+                                style={{
+                                  display: "inline-block",
+                                  backgroundColor: "#edf2f7",
+                                  color: "#667eea",
+                                  padding: "4px 10px",
+                                  borderRadius: "12px",
+                                  fontSize: "12px",
+                                  fontWeight: 600,
+                                  textTransform: "capitalize",
+                                  border: "1px solid #cbd5e0",
+                                }}
+                              >
+                                {group}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          "—"
+                        )}
+                      </td>
+                      <td>
+                        <button
+                          className="fitnessButton"
+                          onClick={() => handleEditWorkoutDay(d)}
+                          style={{ fontSize: "12px", padding: "4px 8px" }}
+                        >
+                          Edit
+                        </button>
+                      </td>
                     </tr>
                   );
                 })}
@@ -461,6 +679,195 @@ const FitnessDashboard = () => {
           </div>
         </div>
       </div>
+
+      {isEditingNutrition && (
+        <div
+          className="modal-overlay"
+          onClick={() => setIsEditingNutrition(false)}
+        >
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h3>Edit Nutrition Goals</h3>
+            <div className="form-group">
+              <label>Calories per day</label>
+              <input
+                type="number"
+                className="fitnessInput"
+                value={nutritionForm.caloriesPerDay}
+                onChange={(e) =>
+                  setNutritionForm({
+                    ...nutritionForm,
+                    caloriesPerDay: e.target.value,
+                  })
+                }
+              />
+            </div>
+            <div className="form-group">
+              <label>Protein (g) per day</label>
+              <input
+                type="number"
+                className="fitnessInput"
+                value={nutritionForm.proteinGramsPerDay}
+                onChange={(e) =>
+                  setNutritionForm({
+                    ...nutritionForm,
+                    proteinGramsPerDay: e.target.value,
+                  })
+                }
+              />
+            </div>
+            <div className="form-group">
+              <label>Carbs (g) per day</label>
+              <input
+                type="number"
+                className="fitnessInput"
+                value={nutritionForm.carbsGramsPerDay}
+                onChange={(e) =>
+                  setNutritionForm({
+                    ...nutritionForm,
+                    carbsGramsPerDay: e.target.value,
+                  })
+                }
+              />
+            </div>
+            <div className="form-group">
+              <label>Fats (g) per day</label>
+              <input
+                type="number"
+                className="fitnessInput"
+                value={nutritionForm.fatsGramsPerDay}
+                onChange={(e) =>
+                  setNutritionForm({
+                    ...nutritionForm,
+                    fatsGramsPerDay: e.target.value,
+                  })
+                }
+              />
+            </div>
+            <div style={{ display: "flex", gap: "8px", marginTop: "1rem" }}>
+              <button
+                className="fitnessButton"
+                onClick={handleSaveNutritionGoal}
+              >
+                Save
+              </button>
+              <button
+                className="fitnessButton"
+                onClick={() => setIsEditingNutrition(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isEditingWorkout && (
+        <div
+          className="modal-overlay"
+          onClick={() => setIsEditingWorkout(false)}
+        >
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h3 style={{ fontSize: "22.4px" }}>
+              Edit Workout for{" "}
+              {editingDay?.charAt(0).toUpperCase() + editingDay?.slice(1)}
+            </h3>
+            <div style={{ marginTop: "1rem" }}>
+              {/* UPPER SECTION */}
+              <div style={{ marginBottom: "1.5rem" }}>
+                <h4
+                  style={{
+                    fontSize: "19.2px",
+                    fontWeight: 700,
+                    textTransform: "uppercase",
+                    color: "#667eea",
+                    marginBottom: "12px",
+                    letterSpacing: "1px",
+                  }}
+                >
+                  Upper
+                </h4>
+                <div>
+                  {[
+                    "chest",
+                    "back",
+                    "upper arms",
+                    "lower arms",
+                    "shoulders",
+                  ].map((group) => (
+                    <label
+                      key={group}
+                      style={{
+                        display: "block",
+                        marginBottom: "8px",
+                        cursor: "pointer",
+                        fontSize: "16.8px",
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={workoutDayForm.includes(group)}
+                        onChange={() => handleToggleMuscleGroup(group)}
+                        style={{ marginRight: "8px" }}
+                      />
+                      {group.charAt(0).toUpperCase() + group.slice(1)}
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* LOWER SECTION */}
+              <div>
+                <h4
+                  style={{
+                    fontSize: "19.2px",
+                    fontWeight: 700,
+                    textTransform: "uppercase",
+                    color: "#667eea",
+                    marginBottom: "12px",
+                    letterSpacing: "1px",
+                  }}
+                >
+                  Lower
+                </h4>
+                <div>
+                  {["cardio", "waist", "lower legs", "upper legs"].map(
+                    (group) => (
+                      <label
+                        key={group}
+                        style={{
+                          display: "block",
+                          marginBottom: "8px",
+                          cursor: "pointer",
+                          fontSize: "16.8px",
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={workoutDayForm.includes(group)}
+                          onChange={() => handleToggleMuscleGroup(group)}
+                          style={{ marginRight: "8px" }}
+                        />
+                        {group.charAt(0).toUpperCase() + group.slice(1)}
+                      </label>
+                    )
+                  )}
+                </div>
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: "8px", marginTop: "1rem" }}>
+              <button className="fitnessButton" onClick={handleSaveWorkoutDay}>
+                Save
+              </button>
+              <button
+                className="fitnessButton"
+                onClick={() => setIsEditingWorkout(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
