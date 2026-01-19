@@ -37,7 +37,7 @@ const WorkoutLogsPage = () => {
       "/users/me",
       "GET",
       undefined,
-      userCtx.accessToken
+      userCtx.accessToken,
     );
     if (!meRes.ok) {
       setIsLoading(false);
@@ -55,10 +55,10 @@ const WorkoutLogsPage = () => {
     setUserId(uid);
 
     const logsRes = await fetchData(
-      `/workoutlogs/users/${uid}`,
+      `/workoutlogs/user/${uid}`,
       "GET",
       undefined,
-      userCtx.accessToken
+      userCtx.accessToken,
     );
 
     if (!logsRes.ok) {
@@ -111,7 +111,7 @@ const WorkoutLogsPage = () => {
       "/workoutlogs",
       "POST",
       body,
-      userCtx.accessToken
+      userCtx.accessToken,
     );
     if (!res.ok) {
       setError(res.msg || "Failed to create workout log");
@@ -128,7 +128,7 @@ const WorkoutLogsPage = () => {
       `/workoutlogs/${id}`,
       "DELETE",
       {},
-      userCtx.accessToken
+      userCtx.accessToken,
     );
     if (!res.ok) {
       setError(res.msg || "Failed to delete workout log");
@@ -147,7 +147,7 @@ const WorkoutLogsPage = () => {
         muscleGroup: ex.muscleGroup ?? "chest",
         sets: ex.sets ?? "",
         repetitions: ex.repetitions ?? "",
-      }))
+      })),
     );
   };
 
@@ -175,7 +175,7 @@ const WorkoutLogsPage = () => {
       `/workoutlogs/${editingLogId}`,
       "PATCH",
       body,
-      userCtx.accessToken
+      userCtx.accessToken,
     );
     if (!res.ok) {
       setError(res.msg || "Failed to update workout log");
@@ -263,15 +263,16 @@ const WorkoutLogsPage = () => {
                         }}
                       >
                         {[
-                          "chest",
-                          "back",
-                          "legs",
-                          "biceps",
-                          "triceps",
+                          "neck",
+                          "lower arms",
                           "shoulders",
                           "cardio",
-                          "core",
-                          "forearms",
+                          "upper arms",
+                          "chest",
+                          "lower legs",
+                          "back",
+                          "upper legs",
+                          "waist",
                         ].map((g) => (
                           <option key={g} value={g}>
                             {g}
@@ -458,15 +459,16 @@ const WorkoutLogsPage = () => {
                               }}
                             >
                               {[
-                                "chest",
-                                "back",
-                                "legs",
-                                "biceps",
-                                "triceps",
+                                "neck",
+                                "lower arms",
                                 "shoulders",
                                 "cardio",
-                                "core",
-                                "forearms",
+                                "upper arms",
+                                "chest",
+                                "lower legs",
+                                "back",
+                                "upper legs",
+                                "waist",
                               ].map((g) => (
                                 <option key={g} value={g}>
                                   {g}
@@ -508,10 +510,10 @@ const WorkoutLogsPage = () => {
                               className="fitnessButton"
                               onClick={() => {
                                 const next = editExercises.filter(
-                                  (_, i) => i !== idx
+                                  (_, i) => i !== idx,
                                 );
                                 setEditExercises(
-                                  next.length ? next : [emptyExercise()]
+                                  next.length ? next : [emptyExercise()],
                                 );
                               }}
                             >

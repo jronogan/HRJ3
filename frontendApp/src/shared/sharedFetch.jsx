@@ -20,30 +20,56 @@ const sharedFetch = () => {
       }
 
       const res = await fetch(import.meta.env.VITE_SERVER + endpoint, options);
-      const data = await res.json();
+      const contentType = res.headers.get("content-type") || "";
+      const data = await (async () => {
+        if (!contentType.includes("application/json")) return await res.text();
+        const text = await res.text();
+        if (!text) return null;
+        try {
+          return JSON.parse(text);
+        } catch {
+          return text;
+        }
+      })();
 
       if (!res.ok) {
-        if (data?.msg) {
-          if (Array.isArray(data.msg)) {
-            console.error("Array(data.msg)", data.msg[0].msg);
-            return { ok: false, msg: data.msg[0].msg };
-          } else {
-            console.error("data.msg", data.msg);
-            return { ok: false, msg: data.msg };
-          }
-        } else {
-          console.error("final", data);
-          return {
-            ok: false,
-            msg: "an unknown error has occurred, please try again later",
-          };
+        // Common shapes:
+        // - { msg: "..." }
+        // - { msg: [{ msg: "..." }, ...] } (express-validator)
+        // - { message: "..." }
+        // - { error: "..." }
+        // - string body
+        if (data && typeof data === "object") {
+          const msg =
+            (Array.isArray(data.msg) && data.msg[0]?.msg) ||
+            data.msg ||
+            data.message ||
+            data.error;
+          if (msg) return { ok: false, msg };
+
+          // Some APIs use express-validator style under `errors`
+          const errorsMsg =
+            (Array.isArray(data.errors) && data.errors[0]?.msg) ||
+            (Array.isArray(data.errors) && data.errors[0]?.message);
+          if (errorsMsg) return { ok: false, msg: errorsMsg, data };
+
+          // If we got a structured error response, surface it for easier debugging.
+          return { ok: false, msg: `Request failed (${res.status})`, data };
         }
+
+        return {
+          ok: false,
+          msg:
+            typeof data === "string" && data
+              ? data
+              : `Request failed (${res.status})`,
+        };
       }
 
-      return { ok: true, data: data };
+      return { ok: true, data };
     } catch (error) {
       console.error(error.message);
-      return { ok: false, msg: "data error" };
+      return { ok: false, msg: error?.message || "data error" };
     }
   };
 

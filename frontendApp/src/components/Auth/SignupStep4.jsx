@@ -12,16 +12,14 @@ const DAYS = [
 
 const MUSCLE_GROUPS = [
   { value: "chest", label: "Chest" },
-  { value: "back", label: "Back" },
-  { value: "legs", label: "Legs" },
+  { value: "lower arms", label: "Lower Arms" },
+  { value: "upper arms", label: "Upper Arms" },
   { value: "shoulders", label: "Shoulders" },
-  { value: "arms", label: "Arms" },
-  { value: "biceps", label: "Biceps" },
-  { value: "triceps", label: "Triceps" },
-  { value: "core", label: "Core/Abs" },
+  { value: "lower legs", label: "Lower Legs" },
+  { value: "upper legs", label: "Upper Legs" },
+  { value: "waist", label: "Waist" },
   { value: "cardio", label: "Cardio" },
-  { value: "full_body", label: "Full Body" },
-  { value: "other", label: "Other" },
+  { value: "back", label: "Back" },
 ];
 
 const SignupStep4 = ({

@@ -1,4 +1,5 @@
 import { body } from "express-validator";
+import { muscleGroupValues } from "../models/WorkoutGoal.js";
 
 const goalValues = ["weight_loss", "weight_gain", "maintenance"];
 const genderValues = ["male", "female", "other"];
@@ -10,20 +11,6 @@ const days = [
   "friday",
   "saturday",
   "sunday",
-];
-
-const muscleGroupValues = [
-  "chest",
-  "back",
-  "legs",
-  "shoulders",
-  "arms",
-  "biceps",
-  "triceps",
-  "core",
-  "cardio",
-  "full_body",
-  "other",
 ];
 
 export const validateUserRegister = [
