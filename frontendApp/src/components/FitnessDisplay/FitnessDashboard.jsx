@@ -374,7 +374,7 @@ const FitnessDashboard = () => {
   return (
     <div>
       <div className="fitnessRow" style={{ justifyContent: "space-between" }}>
-        <h2>Fitness Dashboard</h2>
+        <h2>Welcome, {me?.user?.name || "User"}</h2>
         <div className="fitnessRow">
           <label className="fitnessMuted">Date</label>
           <input
