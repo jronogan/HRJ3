@@ -27,6 +27,15 @@ const UserProfilePage = () => {
   const [error, setError] = useState(null);
   const [message, setMessage] = useState("");
 
+  const bmiValue = (() => {
+    const h = Number(form.height);
+    const w = Number(form.weight);
+    if (!Number.isFinite(h) || !Number.isFinite(w) || h <= 0) return null;
+    const m = h / 100;
+    const bmi = w / (m * m);
+    return Math.round(bmi * 10) / 10; // 1 decimal
+  })();
+
   useEffect(() => {
     const load = async () => {
       setLoading(true);
@@ -69,15 +78,24 @@ const UserProfilePage = () => {
     setMessage("");
 
     const payload = {
-      name: form.name,
-      goal: form.goal,
-      weight: form.weight === "" ? undefined : Number(form.weight),
-      age: form.age === "" ? undefined : Number(form.age),
+      name: form.name || undefined,
+      email: form.email || undefined,
+      goal: form.goal || undefined,
+      height:
+        form.height !== "" && form.height != null
+          ? Number(form.height)
+          : undefined,
+      weight:
+        form.weight !== "" && form.weight != null
+          ? Number(form.weight)
+          : undefined,
+      gender: form.gender || undefined,
+      age: form.age !== "" && form.age != null ? Number(form.age) : undefined,
     };
 
     const res = await fetchData(
       "/users/me",
-      "PUT",
+      "PATCH",
       payload,
       userCtx.accessToken
     );
@@ -90,8 +108,11 @@ const UserProfilePage = () => {
       setForm((prev) => ({
         ...prev,
         name: u.name ?? prev.name,
+        email: u.email ?? prev.email,
         goal: u.goal ?? prev.goal,
+        height: u.height ?? prev.height,
         weight: u.weight ?? prev.weight,
+        gender: u.gender ?? prev.gender,
         age: u.age ?? prev.age,
       }));
     }
@@ -141,12 +162,12 @@ const UserProfilePage = () => {
         </div>
 
         <div className="form-group">
-          <label>Email</label>
+          <label>Age</label>
           <input
             className="fitnessInput"
-            type="email"
-            value={form.email}
-            disabled
+            type="number"
+            value={form.age}
+            onChange={(e) => handleChange("age", e.target.value)}
           />
         </div>
 
@@ -172,7 +193,7 @@ const UserProfilePage = () => {
             className="fitnessInput"
             type="number"
             value={form.height}
-            disabled
+            onChange={(e) => handleChange("height", e.target.value)}
           />
         </div>
 
@@ -188,21 +209,35 @@ const UserProfilePage = () => {
 
         <div className="form-group">
           <label>Gender</label>
+          <select
+            className="fitnessInput"
+            value={form.gender}
+            onChange={(e) => handleChange("gender", e.target.value)}
+          >
+            <option value="">Select gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <div className="form-group">
+          <label>Email</label>
           <input
             className="fitnessInput"
-            type="text"
-            value={form.gender}
+            type="email"
+            value={form.email}
             disabled
           />
         </div>
 
         <div className="form-group">
-          <label>Age</label>
+          <label>BMI</label>
           <input
             className="fitnessInput"
-            type="number"
-            value={form.age}
-            onChange={(e) => handleChange("age", e.target.value)}
+            type="text"
+            value={bmiValue == null ? "—" : String(bmiValue)}
+            disabled
           />
         </div>
       </div>
