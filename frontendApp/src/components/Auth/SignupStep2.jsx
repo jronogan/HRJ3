@@ -1,22 +1,100 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 
 const SignupStep2 = ({ onNext, onBack, formData, setFormData }) => {
   const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
+
+    setFormData((prev) => {
+      // If the user changes height/weight/gender/age after selecting a goal,
+      // reset goal so they re-confirm it after seeing BMI advice.
+      const shouldResetGoal =
+        name === "height" ||
+        name === "weight" ||
+        name === "gender" ||
+        name === "age";
+
+      return {
+        ...prev,
+        [name]: value,
+        ...(shouldResetGoal ? { goal: "" } : null),
+      };
+    });
+
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
+
+    // Also clear goal error if we reset it implicitly.
+    if (
+      (name === "height" ||
+        name === "weight" ||
+        name === "gender" ||
+        name === "age") &&
+      errors.goal
+    ) {
+      setErrors((prev) => ({ ...prev, goal: "" }));
     }
   };
 
+  const heightCm = useMemo(() => {
+    const n = parseFloat(formData.height);
+    return Number.isFinite(n) ? n : NaN;
+  }, [formData.height]);
+
+  const weightKg = useMemo(() => {
+    const n = parseFloat(formData.weight);
+    return Number.isFinite(n) ? n : NaN;
+  }, [formData.weight]);
+
+  const ageNum = useMemo(() => {
+    const n = parseInt(formData.age, 10);
+    return Number.isFinite(n) ? n : NaN;
+  }, [formData.age]);
+
+  const isProfileComplete = useMemo(() => {
+    // Keep this minimal: selection visibility (not strict validation).
+    return (
+      formData.gender &&
+      Number.isFinite(ageNum) &&
+      Number.isFinite(heightCm) &&
+      Number.isFinite(weightKg)
+    );
+  }, [ageNum, formData.gender, heightCm, weightKg]);
+
+  const bmiInfo = useMemo(() => {
+    if (!Number.isFinite(heightCm) || !Number.isFinite(weightKg)) return null;
+    if (heightCm <= 0 || weightKg <= 0) return null;
+
+    const heightM = heightCm / 100;
+    const bmi = weightKg / (heightM * heightM);
+
+    // Use your requested ranges/text.
+    let category = "";
+    let advice = "";
+
+    if (bmi < 18.5) {
+      category = "Underweight / Lean";
+      advice =
+        "Priority: Muscle & metabolic health - Muscle/Weight gain recommended";
+    } else if (bmi >= 18.5 && bmi <= 22.9) {
+      category = "Normal BMI (18.5–22.9)";
+      advice = "Healthy Range - Select according to personal goals";
+    } else if (bmi >= 23 && bmi <= 27.4) {
+      category = "Overweight (23–27.4)";
+      advice =
+        "Priority: Insulin sensitivity, visceral fat reduction - Weight loss recommended";
+    } else {
+      // You didn’t specify >27.4, but we still show something sensible.
+      category = "Above range";
+      advice =
+        "Priority: Fat reduction & overall health - weight loss recommended";
+    }
+
+    return { bmi, category, advice };
+  }, [heightCm, weightKg]);
+
   const validateForm = () => {
     const newErrors = {};
-
-    if (!formData.goal) {
-      newErrors.goal = "Please select your fitness goal";
-    }
 
     const height = parseFloat(formData.height);
     if (!formData.height || isNaN(height) || height <= 0 || height > 300) {
@@ -32,9 +110,14 @@ const SignupStep2 = ({ onNext, onBack, formData, setFormData }) => {
       newErrors.gender = "Please select your gender";
     }
 
-    const age = parseInt(formData.age);
+    const age = parseInt(formData.age, 10);
     if (!formData.age || isNaN(age) || age < 13 || age > 120) {
       newErrors.age = "Please enter a valid age (13-120)";
+    }
+
+    // Only validate goal after the profile info has been provided (and BMI shown).
+    if (isProfileComplete && !formData.goal) {
+      newErrors.goal = "Please select your fitness goal";
     }
 
     return newErrors;
@@ -44,11 +127,8 @@ const SignupStep2 = ({ onNext, onBack, formData, setFormData }) => {
     e.preventDefault();
     const newErrors = validateForm();
 
-    if (Object.keys(newErrors).length === 0) {
-      onNext();
-    } else {
-      setErrors(newErrors);
-    }
+    if (Object.keys(newErrors).length === 0) onNext();
+    else setErrors(newErrors);
   };
 
   return (
@@ -59,23 +139,6 @@ const SignupStep2 = ({ onNext, onBack, formData, setFormData }) => {
       </p>
 
       <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="goal">Fitness Goal *</label>
-          <select
-            id="goal"
-            name="goal"
-            value={formData.goal || ""}
-            onChange={handleChange}
-            className={errors.goal ? "error" : ""}
-          >
-            <option value="">Select your goal...</option>
-            <option value="weight_loss">Lose Weight</option>
-            <option value="weight_gain">Gain Muscle</option>
-            <option value="maintenance">Maintenance</option>
-          </select>
-          {errors.goal && <span className="error-message">{errors.goal}</span>}
-        </div>
-
         <div className="form-row">
           <div className="form-group">
             <label htmlFor="height">Height (cm) *</label>
@@ -153,10 +216,57 @@ const SignupStep2 = ({ onNext, onBack, formData, setFormData }) => {
           </div>
         </div>
 
+        {/* BMI section appears after the required profile fields have values */}
+        {isProfileComplete && bmiInfo && (
+          <div className="form-group">
+            <label>BMI Information</label>
+            <div
+              className="bmi-card"
+              style={{
+                padding: "12px",
+                border: "1px solid #e5e7eb",
+                borderRadius: "8px",
+                background: "#f9fafb",
+              }}
+            >
+              <div style={{ fontWeight: 600 }}>
+                BMI: {bmiInfo.bmi.toFixed(1)}
+              </div>
+              <div style={{ marginTop: 6 }}>
+                <strong>{bmiInfo.category}</strong>
+              </div>
+              <div style={{ marginTop: 6 }}>{bmiInfo.advice}</div>
+            </div>
+          </div>
+        )}
+
+        {/* Goal selection only appears after BMI is available */}
+        {isProfileComplete && bmiInfo && (
+          <div className="form-group">
+            <label htmlFor="goal">Fitness Goal *</label>
+            <select
+              id="goal"
+              name="goal"
+              value={formData.goal || ""}
+              onChange={handleChange}
+              className={errors.goal ? "error" : ""}
+            >
+              <option value="">Select your goal...</option>
+              <option value="weight_loss">Lose Weight</option>
+              <option value="weight_gain">Gain Muscle</option>
+              <option value="maintenance">Maintenance</option>
+            </select>
+            {errors.goal && (
+              <span className="error-message">{errors.goal}</span>
+            )}
+          </div>
+        )}
+
         <div className="form-actions">
           <button type="button" onClick={onBack} className="btn btn-secondary">
             Back
           </button>
+
           <button type="submit" className="btn btn-primary">
             Next Step
           </button>
