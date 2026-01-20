@@ -17,7 +17,17 @@ const emptyFoodItem = () => ({
 
 const NutritionLogsPage = () => {
   const userCtx = use(UserContext);
-  const fetchData = useMemo(() => sharedFetch(), []);
+  const fetchData = useMemo(
+    () =>
+      sharedFetch({
+        setAccessToken: userCtx.setAccessToken,
+        onAuthError: () => {
+          localStorage.removeItem("refreshToken");
+          userCtx.setAccessToken("");
+        },
+      }),
+    [userCtx]
+  );
 
   const [userId, setUserId] = useState(null);
   const [logs, setLogs] = useState([]);

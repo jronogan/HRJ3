@@ -136,18 +136,18 @@ export const refreshUser = async (req, res) => {
   try {
     const decoded = jwt.verify(
       req.body.refresh,
-      process.env.SECRET_REFRESH_KEY,
+      process.env.SECRET_REFRESH_KEY
     );
 
     const access = jwt.sign(
       {
-        id: decoded._id,
+        id: decoded.id,
       },
       process.env.SECRET_ACCESS_KEY,
       {
         expiresIn: "15m",
         jwtid: uuidv4(),
-      },
+      }
     );
     res.json({ access });
   } catch (error) {

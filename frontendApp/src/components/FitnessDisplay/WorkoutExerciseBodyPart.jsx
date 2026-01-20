@@ -17,10 +17,20 @@ const WorkoutExerciseBodyPart = () => {
     repetitions: "",
     weight: "",
   });
+  const userCtx = use(UserContext);
   const [isAdding, setIsAdding] = useState(false);
   const { muscleGroup } = useParams();
-  const fetchData = useMemo(() => sharedFetch(), []);
-  const userCtx = use(UserContext);
+  const fetchData = useMemo(
+    () =>
+      sharedFetch({
+        setAccessToken: userCtx.setAccessToken,
+        onAuthError: () => {
+          localStorage.removeItem("refreshToken");
+          userCtx.setAccessToken("");
+        },
+      }),
+    [userCtx]
+  );
 
   const normalizedQuery = query.trim().toLowerCase();
   const visibleItems = !normalizedQuery
@@ -28,7 +38,7 @@ const WorkoutExerciseBodyPart = () => {
     : items.filter((ex) =>
         String(ex?.exerciseName || "")
           .toLowerCase()
-          .includes(normalizedQuery),
+          .includes(normalizedQuery)
       );
 
   useEffect(() => {
@@ -43,7 +53,7 @@ const WorkoutExerciseBodyPart = () => {
         "/users/me",
         "GET",
         undefined,
-        userCtx.accessToken,
+        userCtx.accessToken
       );
       if (!meRes.ok) {
         setMe(null);
@@ -59,7 +69,7 @@ const WorkoutExerciseBodyPart = () => {
         `/workoutexercises/bodypart/${encodeURIComponent(muscleGroup)}`,
         "GET",
         undefined,
-        userCtx.accessToken,
+        userCtx.accessToken
       );
 
       if (!res.ok) {
@@ -135,7 +145,7 @@ const WorkoutExerciseBodyPart = () => {
         {
           name: String(exercise?.exerciseName || "").trim(),
           muscleGroup: String(
-            exercise?.exerciseBodyParts || muscleGroup || "",
+            exercise?.exerciseBodyParts || muscleGroup || ""
           ).trim(),
           sets,
           repetitions,
@@ -148,7 +158,7 @@ const WorkoutExerciseBodyPart = () => {
       "/workoutlogs",
       "POST",
       body,
-      userCtx.accessToken,
+      userCtx.accessToken
     );
 
     if (!res.ok) {

@@ -11,7 +11,17 @@ const goalOptions = [
 
 const UserProfilePage = () => {
   const userCtx = use(UserContext);
-  const fetchData = useMemo(() => sharedFetch(), []);
+  const fetchData = useMemo(
+    () =>
+      sharedFetch({
+        setAccessToken: userCtx.setAccessToken,
+        onAuthError: () => {
+          localStorage.removeItem("refreshToken");
+          userCtx.setAccessToken("");
+        },
+      }),
+    [userCtx]
+  );
 
   const [form, setForm] = useState({
     name: "",

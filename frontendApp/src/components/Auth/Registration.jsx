@@ -13,7 +13,17 @@ const Registration = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const userCtx = use(UserContext);
-  const fetchData = useMemo(() => sharedFetch(), []);
+  const fetchData = useMemo(
+    () =>
+      sharedFetch({
+        setAccessToken: userCtx.setAccessToken,
+        onAuthError: () => {
+          localStorage.removeItem("refreshToken");
+          userCtx.setAccessToken("");
+        },
+      }),
+    [userCtx]
+  );
 
   const [formData, setFormData] = useState({
     name: "",
@@ -72,7 +82,7 @@ const Registration = () => {
         nutritionGoal: {
           caloriesPerDay: parseFloat(formData.nutritionGoal.caloriesPerDay),
           proteinGramsPerDay: parseFloat(
-            formData.nutritionGoal.proteinGramsPerDay,
+            formData.nutritionGoal.proteinGramsPerDay
           ),
           carbsGramsPerDay: parseFloat(formData.nutritionGoal.carbsGramsPerDay),
           fatsGramsPerDay: parseFloat(formData.nutritionGoal.fatsGramsPerDay),
@@ -86,7 +96,7 @@ const Registration = () => {
       const registerRes = await fetchData(
         "/users/register",
         "POST",
-        registrationData,
+        registrationData
       );
       if (!registerRes.ok) {
         throw new Error(registerRes.msg || "Registration failed");
@@ -100,17 +110,22 @@ const Registration = () => {
 
       if (!loginRes.ok) {
         throw new Error(
-          "Registration successful, but login failed. Please login manually.",
+          "Registration successful, but login failed. Please login manually."
         );
       }
 
       const loginData = loginRes.data;
       const access =
         loginData?.access ?? loginData?.accessToken ?? loginData?.token;
+      const refresh = loginData?.refresh ?? loginData?.refreshToken;
       if (!access) {
         throw new Error(
-          "Registration successful, but no access token was returned from login.",
+          "Registration successful, but no access token was returned from login."
         );
+      }
+
+      if (refresh) {
+        localStorage.setItem("refreshToken", refresh);
       }
 
       userCtx.setAccessToken(access);
@@ -182,8 +197,8 @@ const Registration = () => {
                     step === currentStep
                       ? "active"
                       : step < currentStep
-                        ? "completed"
-                        : ""
+                      ? "completed"
+                      : ""
                   }`}
                 >
                   <div className="step-number">{step}</div>

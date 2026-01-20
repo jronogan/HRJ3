@@ -45,7 +45,17 @@ const MUSCLE_COLORS = {
 
 const FitnessDashboard = () => {
   const userCtx = use(UserContext);
-  const fetchData = useMemo(() => sharedFetch(), []);
+  const fetchData = useMemo(
+    () =>
+      sharedFetch({
+        setAccessToken: userCtx.setAccessToken,
+        onAuthError: () => {
+          localStorage.removeItem("refreshToken");
+          userCtx.setAccessToken("");
+        },
+      }),
+    [userCtx]
+  );
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
