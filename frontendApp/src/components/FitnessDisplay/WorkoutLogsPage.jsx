@@ -38,7 +38,7 @@ const WorkoutLogsPage = () => {
       "/users/me",
       "GET",
       undefined,
-      userCtx.accessToken,
+      userCtx.accessToken
     );
     if (!meRes.ok) {
       setIsLoading(false);
@@ -59,7 +59,7 @@ const WorkoutLogsPage = () => {
       `/workoutlogs/user/${uid}`,
       "GET",
       undefined,
-      userCtx.accessToken,
+      userCtx.accessToken
     );
 
     if (!logsRes.ok) {
@@ -113,7 +113,7 @@ const WorkoutLogsPage = () => {
       "/workoutlogs",
       "POST",
       body,
-      userCtx.accessToken,
+      userCtx.accessToken
     );
     if (!res.ok) {
       setError(res.msg || "Failed to create workout log");
@@ -130,7 +130,7 @@ const WorkoutLogsPage = () => {
       `/workoutlogs/${id}`,
       "DELETE",
       {},
-      userCtx.accessToken,
+      userCtx.accessToken
     );
     if (!res.ok) {
       setError(res.msg || "Failed to delete workout log");
@@ -150,7 +150,7 @@ const WorkoutLogsPage = () => {
         sets: ex.sets ?? "",
         repetitions: ex.repetitions ?? "",
         weight: ex.weight ?? "",
-      })),
+      }))
     );
   };
 
@@ -179,7 +179,7 @@ const WorkoutLogsPage = () => {
       `/workoutlogs/${editingLogId}`,
       "PATCH",
       body,
-      userCtx.accessToken,
+      userCtx.accessToken
     );
     if (!res.ok) {
       setError(res.msg || "Failed to update workout log");
@@ -550,10 +550,10 @@ const WorkoutLogsPage = () => {
                               className="fitnessButton"
                               onClick={() => {
                                 const next = editExercises.filter(
-                                  (_, i) => i !== idx,
+                                  (_, i) => i !== idx
                                 );
                                 setEditExercises(
-                                  next.length ? next : [emptyExercise()],
+                                  next.length ? next : [emptyExercise()]
                                 );
                               }}
                             >
