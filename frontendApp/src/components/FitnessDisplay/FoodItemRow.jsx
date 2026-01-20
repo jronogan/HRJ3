@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 
 const FoodItemRow = ({ foodItem, onSave }) => {
+  const [meal, setMeal] = useState(foodItem?.meal ?? "breakfast");
   const [name, setName] = useState(foodItem?.name ?? "");
+  const [amount, setAmount] = useState(foodItem?.amount ?? "");
   const [calories, setCalories] = useState(foodItem?.calories ?? "");
   const [protein, setProtein] = useState(foodItem?.protein ?? "");
   const [carbs, setCarbs] = useState(foodItem?.carbs ?? "");
@@ -9,6 +11,26 @@ const FoodItemRow = ({ foodItem, onSave }) => {
 
   return (
     <tr>
+      <td>
+        <select
+          className="fitnessInput"
+          value={meal}
+          onChange={(e) => setMeal(e.target.value)}
+        >
+          <option value="breakfast">breakfast</option>
+          <option value="lunch">lunch</option>
+          <option value="dinner">dinner</option>
+          <option value="snack">snack</option>
+        </select>
+      </td>
+      <td>
+        <input
+          className="fitnessInput"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          placeholder="e.g. 100g"
+        />
+      </td>
       <td>
         <input
           className="fitnessInput"
@@ -50,7 +72,9 @@ const FoodItemRow = ({ foodItem, onSave }) => {
           type="button"
           onClick={() =>
             onSave({
+              meal,
               name,
+              amount: String(amount || "").trim() || undefined,
               calories: calories === "" ? undefined : Number(calories),
               protein: protein === "" ? undefined : Number(protein),
               carbs: carbs === "" ? undefined : Number(carbs),

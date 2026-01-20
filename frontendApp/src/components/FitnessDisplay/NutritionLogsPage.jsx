@@ -6,7 +6,9 @@ import FoodItemRow from "./FoodItemRow";
 import "./FitnessDisplay.css";
 
 const emptyFoodItem = () => ({
+  meal: "breakfast",
   name: "",
+  amount: "",
   calories: "",
   protein: "",
   carbs: "",
@@ -22,7 +24,6 @@ const NutritionLogsPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const [meal, setMeal] = useState("breakfast");
   const [date, setDate] = useState(toLocalISODate(new Date()));
   const [foodItems, setFoodItems] = useState([emptyFoodItem()]);
 
@@ -36,7 +37,6 @@ const NutritionLogsPage = () => {
   const [extractRowIndex, setExtractRowIndex] = useState(0);
 
   const [editingLogId, setEditingLogId] = useState(null);
-  const [editMeal, setEditMeal] = useState("breakfast");
   const [editDate, setEditDate] = useState(toLocalISODate(new Date()));
 
   const [filterDate, setFilterDate] = useState("");
@@ -102,7 +102,9 @@ const NutritionLogsPage = () => {
     const cleanItems = foodItems
       .filter((i) => String(i.name).trim().length)
       .map((i) => ({
+        meal: String(i.meal || "breakfast"),
         name: String(i.name).trim(),
+        amount: String(i.amount || "").trim() || undefined,
         calories: i.calories === "" ? undefined : Number(i.calories),
         protein: i.protein === "" ? undefined : Number(i.protein),
         carbs: i.carbs === "" ? undefined : Number(i.carbs),
@@ -116,7 +118,6 @@ const NutritionLogsPage = () => {
 
     const body = {
       userId,
-      meal,
       date: date ? new Date(date + "T12:00:00").toISOString() : undefined,
       foodItems: cleanItems,
     };
@@ -153,7 +154,6 @@ const NutritionLogsPage = () => {
 
   const startEdit = (log) => {
     setEditingLogId(log._id);
-    setEditMeal(log.meal);
     setEditDate(toLocalISODate(log.date));
   };
 
@@ -162,7 +162,6 @@ const NutritionLogsPage = () => {
     setError(null);
 
     const body = {
-      meal: editMeal,
       date: editDate
         ? new Date(editDate + "T12:00:00").toISOString()
         : undefined,
@@ -276,6 +275,12 @@ const NutritionLogsPage = () => {
       next[idx] = {
         ...next[idx],
         name: item.name ?? next[idx].name ?? "",
+        amount:
+          item.serving_size_g === null ||
+          item.serving_size_g === undefined ||
+          Number.isNaN(Number(item.serving_size_g))
+            ? next[idx].amount ?? ""
+            : `${Math.round(Number(item.serving_size_g))}g`,
         calories: round(item.calories),
         protein: round(item.protein_g),
         carbs: round(item.carbohydrates_total_g),
@@ -324,21 +329,6 @@ const NutritionLogsPage = () => {
                 onChange={(e) => setDate(e.target.value)}
               />
             </div>
-
-            <div className="fitnessField">
-              <label>Meal</label>
-              <select
-                className="fitnessInput"
-                value={meal}
-                onChange={(e) => setMeal(e.target.value)}
-              >
-                <option value="breakfast">breakfast</option>
-                <option value="lunch">lunch</option>
-                <option value="dinner">dinner</option>
-                <option value="snack">snack</option>
-              </select>
-            </div>
-
             <div className="fitnessField">
               <label>&nbsp;</label>
               <button
@@ -472,6 +462,8 @@ const NutritionLogsPage = () => {
             <table className="fitnessTable">
               <thead>
                 <tr>
+                  <th>Meal</th>
+                  <th>Serving</th>
                   <th>Food</th>
                   <th>Calories</th>
                   <th>Protein</th>
@@ -483,6 +475,34 @@ const NutritionLogsPage = () => {
               <tbody>
                 {foodItems.map((item, idx) => (
                   <tr key={idx}>
+                    <td>
+                      <select
+                        className="fitnessInput"
+                        value={item.meal}
+                        onChange={(e) => {
+                          const next = [...foodItems];
+                          next[idx] = { ...next[idx], meal: e.target.value };
+                          setFoodItems(next);
+                        }}
+                      >
+                        <option value="breakfast">breakfast</option>
+                        <option value="lunch">lunch</option>
+                        <option value="dinner">dinner</option>
+                        <option value="snack">snack</option>
+                      </select>
+                    </td>
+                    <td>
+                      <input
+                        className="fitnessInput"
+                        value={item.amount}
+                        onChange={(e) => {
+                          const next = [...foodItems];
+                          next[idx] = { ...next[idx], amount: e.target.value };
+                          setFoodItems(next);
+                        }}
+                        placeholder="e.g. 100g"
+                      />
+                    </td>
                     <td>
                       <input
                         className="fitnessInput"
@@ -612,14 +632,14 @@ const NutritionLogsPage = () => {
               style={{ justifyContent: "space-between" }}
             >
               <div>
-                <strong>{toLocalISODate(log.date)}</strong> — {log.meal}
+                <strong>{toLocalISODate(log.date)}</strong>
               </div>
               <div className="fitnessRow">
                 <button
                   className="fitnessButton"
                   onClick={() => startEdit(log)}
                 >
-                  Edit meal/date
+                  Edit date
                 </button>
                 <button
                   className="fitnessButton"
@@ -638,16 +658,6 @@ const NutritionLogsPage = () => {
                   value={editDate}
                   onChange={(e) => setEditDate(e.target.value)}
                 />
-                <select
-                  className="fitnessInput"
-                  value={editMeal}
-                  onChange={(e) => setEditMeal(e.target.value)}
-                >
-                  <option value="breakfast">breakfast</option>
-                  <option value="lunch">lunch</option>
-                  <option value="dinner">dinner</option>
-                  <option value="snack">snack</option>
-                </select>
                 <button className="fitnessButtonPrimary" onClick={saveEdit}>
                   Save
                 </button>
@@ -664,6 +674,8 @@ const NutritionLogsPage = () => {
               <table className="fitnessTable">
                 <thead>
                   <tr>
+                    <th>Meal</th>
+                    <th>Serving</th>
                     <th>Food</th>
                     <th>Calories</th>
                     <th>Protein</th>
