@@ -71,7 +71,7 @@ const SignupStep2 = ({ onNext, onBack, formData, setFormData }) => {
             <option value="">Select your goal...</option>
             <option value="weight_loss">Lose Weight</option>
             <option value="weight_gain">Gain Muscle</option>
-            <option value="maintenance">Weight Gain</option>
+            <option value="maintenance">Maintenance</option>
           </select>
           {errors.goal && <span className="error-message">{errors.goal}</span>}
         </div>

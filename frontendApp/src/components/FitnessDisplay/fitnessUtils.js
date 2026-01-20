@@ -57,3 +57,17 @@ export const weekdayKeyForDate = (isoDate) => {
   ];
   return keys[d.getDay()];
 };
+
+export const formatWord = (word) => {
+  // Defensive: handle null/undefined/non-strings and normalize extra whitespace.
+  // ?? used when false, 0, or "" are valid values
+  const s = String(word ?? "").trim();
+  if (!s) return "";
+
+  return s
+    .toLowerCase()
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+};

@@ -8,6 +8,8 @@ import NutritionLogsPage from "./components/FitnessDisplay/NutritionLogsPage";
 import WorkoutLogsPage from "./components/FitnessDisplay/WorkoutLogsPage";
 import Login from "./components/Auth/Login";
 import Registration from "./components/Auth/Registration";
+import WorkoutExercisePage from "./components/FitnessDisplay/WorkoutExercisePage";
+import WorkoutExerciseBodyPart from "./components/FitnessDisplay/WorkoutExerciseBodyPart";
 
 function App() {
   const [accessToken, setAccessToken] = useState("");
@@ -33,6 +35,11 @@ function App() {
             <Route index element={<FitnessDashboard />} />
             <Route path="nutrition-logs" element={<NutritionLogsPage />} />
             <Route path="workout-logs" element={<WorkoutLogsPage />} />
+            <Route path="workout-exercises" element={<WorkoutExercisePage />} />
+            <Route
+              path="workout-exercises/:muscleGroup"
+              element={<WorkoutExerciseBodyPart />}
+            />
             <Route path="*" element={<Navigate to="/fitness" replace />} />
           </Route>
         </Routes>

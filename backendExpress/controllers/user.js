@@ -84,12 +84,10 @@ export const createUser = async (req, res) => {
     } catch (goalError) {
       // If goals fail, clean up the user so registration stays all-or-nothing
       await User.findByIdAndDelete(newUser._id);
-      return res
-        .status(500)
-        .json({
-          message: "Error creating user goals",
-          error: goalError.message,
-        });
+      return res.status(500).json({
+        message: "Error creating user goals",
+        error: goalError.message,
+      });
     }
 
     res.status(201).json({
@@ -135,31 +133,27 @@ export const loginUser = async (req, res) => {
 // refresh user
 
 export const refreshUser = async (req, res) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader) {
-    return res.status(401).json({ message: "No authorization" });
-  }
+  try {
+    const decoded = jwt.verify(
+      req.body.refresh,
+      process.env.SECRET_REFRESH_KEY,
+    );
 
-  const token = authHeader.split(" ")[1];
-  if (!token) {
-    return res.status(401).json({ message: "No token provided" });
-  }
-
-  jwt.verify(token, process.env.SECRET_REFRESH_KEY, (err, user) => {
-    if (err) {
-      return res.status(403).json({ message: "Invalid token" });
-    }
-
-    const newAccessToken = jwt.sign(
-      { id: user.id },
+    const access = jwt.sign(
+      {
+        id: decoded._id,
+      },
       process.env.SECRET_ACCESS_KEY,
       {
         expiresIn: "15m",
-      }
+        jwtid: uuidv4(),
+      },
     );
-
-    res.status(200).json(newAccessToken);
-  });
+    res.json({ access });
+  } catch (error) {
+    console.error(error.message);
+    res.status(400).json({ status: "error", msg: "error refreshing token" });
+  }
 };
 
 // get current user (requires Authorization: Bearer <accessToken>)
@@ -183,5 +177,38 @@ export const getMe = async (req, res) => {
     res.status(200).json({ user, workoutGoal, nutritionGoal });
   } catch (error) {
     res.status(500).json({ message: "Error fetching current user" });
+  }
+};
+
+// Update Current User
+export const updateMe = async (req, res) => {
+  try {
+    const userId = req.decoded?.id;
+    if (!userId) {
+      return res.status(401).json({ message: "Invalid token" });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update user fields
+    const { name, email, password, goal, height, weight, gender, age } =
+      req.body;
+    if (name) user.name = name;
+    if (email) user.email = email;
+    if (password) user.password = await bcrypt.hash(password, 12);
+    if (goal) user.goal = goal;
+    if (height) user.height = height;
+    if (weight) user.weight = weight;
+    if (gender) user.gender = gender;
+    if (age) user.age = age;
+
+    await user.save();
+
+    res.status(200).json({ message: "User updated successfully", user });
+  } catch (error) {
+    res.status(500).json({ message: "Error updating user" });
   }
 };
