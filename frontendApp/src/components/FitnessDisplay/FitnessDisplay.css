@@ -112,6 +112,11 @@
   min-width: 0;
 }
 
+.fitnessInputNarrow {
+  width: 120px;
+  max-width: 120px;
+}
+
 .modal-overlay {
   position: fixed;
   top: 0;

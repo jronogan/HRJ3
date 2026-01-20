@@ -1,7 +1,7 @@
 import React, { use, useEffect, useMemo, useState } from "react";
 import UserContext from "../../context/user";
 import sharedFetch from "../../shared/sharedFetch";
-import { toLocalISODate } from "./fitnessUtils";
+import { formatWord, toLocalISODate } from "./fitnessUtils";
 import FoodItemRow from "./FoodItemRow";
 import "./FitnessDisplay.css";
 
@@ -345,22 +345,22 @@ const NutritionLogsPage = () => {
             <div style={{ gridColumn: "1 / -1" }}>
               <div className="fitnessRow" style={{ alignItems: "flex-end" }}>
                 <div className="fitnessField">
-                  <label>Quantity</label>
-                  <input
-                    className="fitnessInput"
-                    value={searchQty}
-                    onChange={(e) => setSearchQty(e.target.value)}
-                    placeholder="e.g. 2"
-                    disabled={searchLoading}
-                  />
-                </div>
-                <div className="fitnessField">
                   <label>Food item</label>
                   <input
                     className="fitnessInput"
                     value={searchFood}
                     onChange={(e) => setSearchFood(e.target.value)}
                     placeholder="e.g. banana"
+                    disabled={searchLoading}
+                  />
+                </div>
+                <div className="fitnessField">
+                  <label>Quantity</label>
+                  <input
+                    className="fitnessInput"
+                    value={searchQty}
+                    onChange={(e) => setSearchQty(e.target.value)}
+                    placeholder="e.g. 2"
                     disabled={searchLoading}
                   />
                 </div>
@@ -463,8 +463,8 @@ const NutritionLogsPage = () => {
               <thead>
                 <tr>
                   <th>Meal</th>
-                  <th>Serving</th>
                   <th>Food</th>
+                  <th>Serving</th>
                   <th>Calories</th>
                   <th>Protein</th>
                   <th>Carbs</th>
@@ -485,23 +485,13 @@ const NutritionLogsPage = () => {
                           setFoodItems(next);
                         }}
                       >
-                        <option value="breakfast">breakfast</option>
-                        <option value="lunch">lunch</option>
-                        <option value="dinner">dinner</option>
-                        <option value="snack">snack</option>
+                        <option value="breakfast">
+                          {formatWord("breakfast")}
+                        </option>
+                        <option value="lunch">{formatWord("lunch")}</option>
+                        <option value="dinner">{formatWord("dinner")}</option>
+                        <option value="snack">{formatWord("snack")}</option>
                       </select>
-                    </td>
-                    <td>
-                      <input
-                        className="fitnessInput"
-                        value={item.amount}
-                        onChange={(e) => {
-                          const next = [...foodItems];
-                          next[idx] = { ...next[idx], amount: e.target.value };
-                          setFoodItems(next);
-                        }}
-                        placeholder="e.g. 100g"
-                      />
                     </td>
                     <td>
                       <input
@@ -517,6 +507,18 @@ const NutritionLogsPage = () => {
                     <td>
                       <input
                         className="fitnessInput"
+                        value={item.amount}
+                        onChange={(e) => {
+                          const next = [...foodItems];
+                          next[idx] = { ...next[idx], amount: e.target.value };
+                          setFoodItems(next);
+                        }}
+                        placeholder="e.g. 100g"
+                      />
+                    </td>
+                    <td>
+                      <input
+                        className="fitnessInput fitnessInputNarrow"
                         value={item.calories}
                         onChange={(e) => {
                           const next = [...foodItems];
@@ -530,7 +532,7 @@ const NutritionLogsPage = () => {
                     </td>
                     <td>
                       <input
-                        className="fitnessInput"
+                        className="fitnessInput fitnessInputNarrow"
                         value={item.protein}
                         onChange={(e) => {
                           const next = [...foodItems];
@@ -541,7 +543,7 @@ const NutritionLogsPage = () => {
                     </td>
                     <td>
                       <input
-                        className="fitnessInput"
+                        className="fitnessInput fitnessInputNarrow"
                         value={item.carbs}
                         onChange={(e) => {
                           const next = [...foodItems];
@@ -552,7 +554,7 @@ const NutritionLogsPage = () => {
                     </td>
                     <td>
                       <input
-                        className="fitnessInput"
+                        className="fitnessInput fitnessInputNarrow"
                         value={item.fats}
                         onChange={(e) => {
                           const next = [...foodItems];
@@ -675,8 +677,8 @@ const NutritionLogsPage = () => {
                 <thead>
                   <tr>
                     <th>Meal</th>
-                    <th>Serving</th>
                     <th>Food</th>
+                    <th>Serving</th>
                     <th>Calories</th>
                     <th>Protein</th>
                     <th>Carbs</th>

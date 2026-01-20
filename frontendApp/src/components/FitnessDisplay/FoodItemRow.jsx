@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { formatWord } from "./fitnessUtils";
 
 const FoodItemRow = ({ foodItem, onSave }) => {
   const [meal, setMeal] = useState(foodItem?.meal ?? "breakfast");
@@ -17,19 +18,11 @@ const FoodItemRow = ({ foodItem, onSave }) => {
           value={meal}
           onChange={(e) => setMeal(e.target.value)}
         >
-          <option value="breakfast">breakfast</option>
-          <option value="lunch">lunch</option>
-          <option value="dinner">dinner</option>
-          <option value="snack">snack</option>
+          <option value="breakfast">{formatWord("breakfast")}</option>
+          <option value="lunch">{formatWord("lunch")}</option>
+          <option value="dinner">{formatWord("dinner")}</option>
+          <option value="snack">{formatWord("snack")}</option>
         </select>
-      </td>
-      <td>
-        <input
-          className="fitnessInput"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          placeholder="e.g. 100g"
-        />
       </td>
       <td>
         <input
@@ -41,27 +34,35 @@ const FoodItemRow = ({ foodItem, onSave }) => {
       <td>
         <input
           className="fitnessInput"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          placeholder="e.g. 100g"
+        />
+      </td>
+      <td>
+        <input
+          className="fitnessInput fitnessInputNarrow"
           value={calories}
           onChange={(e) => setCalories(e.target.value)}
         />
       </td>
       <td>
         <input
-          className="fitnessInput"
+          className="fitnessInput fitnessInputNarrow"
           value={protein}
           onChange={(e) => setProtein(e.target.value)}
         />
       </td>
       <td>
         <input
-          className="fitnessInput"
+          className="fitnessInput fitnessInputNarrow"
           value={carbs}
           onChange={(e) => setCarbs(e.target.value)}
         />
       </td>
       <td>
         <input
-          className="fitnessInput"
+          className="fitnessInput fitnessInputNarrow"
           value={fats}
           onChange={(e) => setFats(e.target.value)}
         />
