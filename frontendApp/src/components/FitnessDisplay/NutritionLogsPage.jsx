@@ -1,7 +1,7 @@
 import React, { use, useEffect, useMemo, useState } from "react";
 import UserContext from "../../context/user";
 import sharedFetch from "../../shared/sharedFetch";
-import { formatWord, toLocalISODate } from "./fitnessUtils";
+import { toLocalISODate } from "./fitnessUtils";
 import FoodItemRow from "./FoodItemRow";
 import "./FitnessDisplay.css";
 
@@ -485,12 +485,10 @@ const NutritionLogsPage = () => {
                           setFoodItems(next);
                         }}
                       >
-                        <option value="breakfast">
-                          {formatWord("breakfast")}
-                        </option>
-                        <option value="lunch">{formatWord("lunch")}</option>
-                        <option value="dinner">{formatWord("dinner")}</option>
-                        <option value="snack">{formatWord("snack")}</option>
+                        <option value="breakfast">Breakfast</option>
+                        <option value="lunch">Lunch</option>
+                        <option value="dinner">Dinner</option>
+                        <option value="snack">Snack</option>
                       </select>
                     </td>
                     <td>
