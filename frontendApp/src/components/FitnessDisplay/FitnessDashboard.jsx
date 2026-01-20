@@ -374,7 +374,7 @@ const FitnessDashboard = () => {
   return (
     <div>
       <div className="fitnessRow" style={{ justifyContent: "space-between" }}>
-        <h2>Fitness Dashboard</h2>
+        <h2>Welcome, {me?.user?.name || "User"}</h2>
         <div className="fitnessRow">
           <label className="fitnessMuted">Date</label>
           <input
@@ -479,7 +479,11 @@ const FitnessDashboard = () => {
                   <button
                     className="fitnessButton"
                     onClick={handleEditNutritionGoal}
-                    style={{ fontSize: "12px", padding: "4px 8px" }}
+                    style={{
+                      fontSize: "13px",
+                      padding: "5px 9px",
+                      fontWeight: 700,
+                    }}
                   >
                     Edit
                   </button>
@@ -536,7 +540,7 @@ const FitnessDashboard = () => {
                 ))}
               </span>
             ) : (
-              "rest"
+              "Rest"
             )}
           </div>
           <div
