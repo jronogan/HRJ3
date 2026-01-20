@@ -10,7 +10,17 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const userCtx = use(UserContext);
-  const fetchData = useMemo(() => sharedFetch(), []);
+  const fetchData = useMemo(
+    () =>
+      sharedFetch({
+        setAccessToken: userCtx.setAccessToken,
+        onAuthError: () => {
+          localStorage.removeItem("refreshToken");
+          userCtx.setAccessToken("");
+        },
+      }),
+    [userCtx]
+  );
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,8 +41,13 @@ const Login = () => {
 
       const data = res.data;
       const access = data?.access ?? data?.accessToken ?? data?.token;
+      const refresh = data?.refresh ?? data?.refreshToken;
       if (!access) {
         throw new Error("Login succeeded but no access token was returned");
+      }
+
+      if (refresh) {
+        localStorage.setItem("refreshToken", refresh);
       }
 
       userCtx.setAccessToken(access);

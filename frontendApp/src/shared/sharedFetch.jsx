@@ -1,5 +1,81 @@
-const sharedFetch = () => {
-  const fetchData = async (endpoint, method, body, token) => {
+let refreshInFlight = null;
+
+const sharedFetch = (options = {}) => {
+  const {
+    getRefreshToken = () =>
+      typeof localStorage === "undefined"
+        ? null
+        : localStorage.getItem("refreshToken"),
+    setAccessToken,
+    onAuthError,
+  } = options;
+
+  const refreshAccessToken = async () => {
+    const refresh = getRefreshToken?.();
+    if (!refresh) return { ok: false, msg: "Missing refresh token" };
+
+    const res = await fetch(import.meta.env.VITE_SERVER + "/users/refresh", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh }),
+    });
+
+    const contentType = res.headers.get("content-type") || "";
+    const data = await (async () => {
+      if (!contentType.includes("application/json")) return await res.text();
+      const text = await res.text();
+      if (!text) return null;
+      try {
+        return JSON.parse(text);
+      } catch {
+        return text;
+      }
+    })();
+
+    if (!res.ok) {
+      const msg =
+        (data && typeof data === "object" && (data.msg || data.message)) ||
+        (typeof data === "string" ? data : null) ||
+        `Refresh failed (${res.status})`;
+      return { ok: false, msg, data };
+    }
+
+    const access =
+      (data && typeof data === "object" && (data.access || data.accessToken)) ||
+      null;
+    if (!access) return { ok: false, msg: "Refresh succeeded but no access" };
+
+    if (typeof setAccessToken === "function") setAccessToken(access);
+    return { ok: true, access };
+  };
+
+  const shouldAttemptRefresh = (res, data) => {
+    if (res.status !== 401) return false;
+    if (!getRefreshToken?.()) return false;
+
+    const msg =
+      data && typeof data === "object"
+        ? data.msg || data.message || data.error
+        : typeof data === "string"
+        ? data
+        : "";
+
+    const msgLower = String(msg || "").toLowerCase();
+    return (
+      msgLower.includes("expired") ||
+      msgLower.includes("invalid") ||
+      msgLower.includes("token") ||
+      msgLower.includes("authorization")
+    );
+  };
+
+  const fetchData = async (
+    endpoint,
+    method,
+    body,
+    token,
+    _didRetry = false
+  ) => {
     try {
       const headers = {
         "Content-Type": "application/json",
@@ -31,6 +107,35 @@ const sharedFetch = () => {
           return text;
         }
       })();
+
+      if (shouldAttemptRefresh(res, data) && !_didRetry) {
+        try {
+          if (!refreshInFlight) {
+            refreshInFlight = refreshAccessToken().finally(() => {
+              refreshInFlight = null;
+            });
+          }
+
+          const refreshRes = await refreshInFlight;
+          if (refreshRes.ok && refreshRes.access) {
+            return await fetchData(
+              endpoint,
+              method,
+              body,
+              refreshRes.access,
+              true
+            );
+          }
+
+          if (typeof onAuthError === "function") {
+            onAuthError(refreshRes.msg || "Failed to refresh token");
+          }
+        } catch (e) {
+          if (typeof onAuthError === "function") {
+            onAuthError(e?.message || "Failed to refresh token");
+          }
+        }
+      }
 
       if (!res.ok) {
         // Common shapes:

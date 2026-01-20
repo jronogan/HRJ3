@@ -6,7 +6,7 @@ import "./FitnessDisplay.css";
 
 const emptyExercise = () => ({
   name: "",
-  muscleGroup: "Chest",
+  muscleGroup: "lower arms",
   sets: "",
   repetitions: "",
   weight: "",
@@ -14,7 +14,17 @@ const emptyExercise = () => ({
 
 const WorkoutLogsPage = () => {
   const userCtx = use(UserContext);
-  const fetchData = useMemo(() => sharedFetch(), []);
+  const fetchData = useMemo(
+    () =>
+      sharedFetch({
+        setAccessToken: userCtx.setAccessToken,
+        onAuthError: () => {
+          localStorage.removeItem("refreshToken");
+          userCtx.setAccessToken("");
+        },
+      }),
+    [userCtx]
+  );
 
   const [userId, setUserId] = useState(null);
   const [logs, setLogs] = useState([]);
@@ -92,7 +102,7 @@ const WorkoutLogsPage = () => {
       .filter((ex) => String(ex.name).trim().length)
       .map((ex) => ({
         name: String(ex.name).trim(),
-        muscleGroup: ex.muscleGroup,
+        muscleGroup: String(ex.muscleGroup || "lower arms").toLowerCase(),
         sets: Number(ex.sets),
         repetitions: Number(ex.repetitions),
         weight: Number(ex.weight),
@@ -146,7 +156,7 @@ const WorkoutLogsPage = () => {
     setEditExercises(
       existing.map((ex) => ({
         name: ex.name ?? "",
-        muscleGroup: ex.muscleGroup ?? "Chest",
+        muscleGroup: String(ex.muscleGroup ?? "lower arms").toLowerCase(),
         sets: ex.sets ?? "",
         repetitions: ex.repetitions ?? "",
         weight: ex.weight ?? "",
@@ -162,7 +172,7 @@ const WorkoutLogsPage = () => {
       .filter((ex) => String(ex.name).trim().length)
       .map((ex) => ({
         name: String(ex.name).trim(),
-        muscleGroup: ex.muscleGroup,
+        muscleGroup: String(ex.muscleGroup || "lower arms").toLowerCase(),
         sets: Number(ex.sets),
         repetitions: Number(ex.repetitions),
         weight: Number(ex.weight),
@@ -269,7 +279,6 @@ const WorkoutLogsPage = () => {
                         }}
                       >
                         {[
-                          "neck",
                           "lower arms",
                           "shoulders",
                           "cardio",
@@ -483,7 +492,6 @@ const WorkoutLogsPage = () => {
                               }}
                             >
                               {[
-                                "neck",
                                 "lower arms",
                                 "shoulders",
                                 "cardio",
@@ -495,7 +503,7 @@ const WorkoutLogsPage = () => {
                                 "waist",
                               ].map((g) => (
                                 <option key={g} value={g}>
-                                  {g}
+                                  {formatWord(g)}
                                 </option>
                               ))}
                             </select>
