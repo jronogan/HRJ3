@@ -1,12 +1,12 @@
 import React, { use, useEffect, useMemo, useState } from "react";
 import UserContext from "../../context/user";
 import sharedFetch from "../../shared/sharedFetch";
-import { toLocalISODate } from "./fitnessUtils";
+import { formatWord, toLocalISODate } from "./fitnessUtils";
 import "./FitnessDisplay.css";
 
 const emptyExercise = () => ({
   name: "",
-  muscleGroup: "chest",
+  muscleGroup: "Chest",
   sets: "",
   repetitions: "",
   weight: "",
@@ -146,7 +146,7 @@ const WorkoutLogsPage = () => {
     setEditExercises(
       existing.map((ex) => ({
         name: ex.name ?? "",
-        muscleGroup: ex.muscleGroup ?? "chest",
+        muscleGroup: ex.muscleGroup ?? "Chest",
         sets: ex.sets ?? "",
         repetitions: ex.repetitions ?? "",
         weight: ex.weight ?? "",
@@ -281,7 +281,7 @@ const WorkoutLogsPage = () => {
                           "waist",
                         ].map((g) => (
                           <option key={g} value={g}>
-                            {g}
+                            {formatWord(g)}
                           </option>
                         ))}
                       </select>
