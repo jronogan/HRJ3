@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { formatWord } from "./fitnessUtils";
 
 const FoodItemRow = ({ foodItem, onSave }) => {
   const [meal, setMeal] = useState(foodItem?.meal ?? "breakfast");
@@ -18,10 +17,10 @@ const FoodItemRow = ({ foodItem, onSave }) => {
           value={meal}
           onChange={(e) => setMeal(e.target.value)}
         >
-          <option value="breakfast">{formatWord("breakfast")}</option>
-          <option value="lunch">{formatWord("lunch")}</option>
-          <option value="dinner">{formatWord("dinner")}</option>
-          <option value="snack">{formatWord("snack")}</option>
+          <option value="breakfast">Breakfast</option>
+          <option value="lunch">Lunch</option>
+          <option value="dinner">Dinner</option>
+          <option value="snack">Snack</option>
         </select>
       </td>
       <td>
