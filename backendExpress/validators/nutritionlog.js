@@ -18,7 +18,16 @@ export const validateNutritionLogFoodItemParams = [
 ];
 
 export const validateNutritionLogFoodItemPatch = [
+  body("meal")
+    .optional()
+    .isIn(mealValues)
+    .withMessage(`meal must be one of: ${mealValues.join(", ")}`),
   body("name").optional().trim().notEmpty().withMessage("name cannot be empty"),
+  body("amount")
+    .optional()
+    .trim()
+    .notEmpty()
+    .withMessage("amount cannot be empty"),
   body("calories")
     .optional()
     .isNumeric()
@@ -35,9 +44,6 @@ export const validateNutritionLogCreate = [
   body("userId")
     .isMongoId()
     .withMessage("userId must be a valid Mongo ObjectId"),
-  body("meal")
-    .isIn(mealValues)
-    .withMessage(`meal must be one of: ${mealValues.join(", ")}`),
   body("date")
     .optional()
     .isISO8601()
@@ -45,10 +51,18 @@ export const validateNutritionLogCreate = [
   body("foodItems")
     .isArray({ min: 1 })
     .withMessage("foodItems must be a non-empty array"),
+  body("foodItems.*.meal")
+    .isIn(mealValues)
+    .withMessage(`foodItems meal must be one of: ${mealValues.join(", ")}`),
   body("foodItems.*.name")
     .trim()
     .notEmpty()
     .withMessage("food item name is required"),
+  body("foodItems.*.amount")
+    .optional()
+    .trim()
+    .notEmpty()
+    .withMessage("amount cannot be empty"),
   body("foodItems.*.calories")
     .optional()
     .isNumeric()
@@ -72,10 +86,6 @@ export const validateNutritionLogUpdate = [
     .optional()
     .isMongoId()
     .withMessage("userId must be a valid Mongo ObjectId"),
-  body("meal")
-    .optional()
-    .isIn(mealValues)
-    .withMessage(`meal must be one of: ${mealValues.join(", ")}`),
   body("date")
     .optional()
     .isISO8601()
@@ -84,11 +94,20 @@ export const validateNutritionLogUpdate = [
     .optional()
     .isArray({ min: 1 })
     .withMessage("foodItems must be a non-empty array"),
+  body("foodItems.*.meal")
+    .optional()
+    .isIn(mealValues)
+    .withMessage(`foodItems meal must be one of: ${mealValues.join(", ")}`),
   body("foodItems.*.name")
     .optional()
     .trim()
     .notEmpty()
     .withMessage("food item name is required"),
+  body("foodItems.*.amount")
+    .optional()
+    .trim()
+    .notEmpty()
+    .withMessage("amount cannot be empty"),
   body("foodItems.*.calories")
     .optional()
     .isNumeric()
@@ -115,10 +134,6 @@ export const validateNutritionLogPatch = [
     .optional()
     .isMongoId()
     .withMessage("userId must be a valid Mongo ObjectId"),
-  body("meal")
-    .optional()
-    .isIn(mealValues)
-    .withMessage(`meal must be one of: ${mealValues.join(", ")}`),
   body("date")
     .optional()
     .isISO8601()
