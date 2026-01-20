@@ -503,8 +503,11 @@ const FitnessDashboard = () => {
         <div className="fitnessCard">
           <h3>Workout (Daily + Weekly Plan)</h3>
 
-          <div className="fitnessMuted">
-            Planned today ({dayKey}):{" "}
+          <div
+            className="fitnessMuted"
+            style={{ fontSize: "115%", marginBottom: "1rem" }}
+          >
+            Planned today ({dayKey.charAt(0).toUpperCase() + dayKey.slice(1)}):{" "}
             {plannedGroups.length ? (
               <span
                 style={{
@@ -536,7 +539,10 @@ const FitnessDashboard = () => {
               "rest"
             )}
           </div>
-          <div className="fitnessMuted">
+          <div
+            className="fitnessMuted"
+            style={{ marginTop: "0.75rem", fontSize: "115%" }}
+          >
             Completed today:{" "}
             {completedGroups.length ? (
               <span
@@ -570,49 +576,66 @@ const FitnessDashboard = () => {
             )}
           </div>
 
-          <div
-            style={{
-              width: "100%",
-              height: workoutDailyChartHeight,
-              marginTop: "1rem",
-            }}
-          >
-            <ResponsiveContainer
-              minWidth={0}
-              minHeight={workoutDailyChartHeight}
-            >
-              <BarChart
-                data={workoutGroupChart}
-                layout="vertical"
-                margin={{ left: 30 }}
-              >
-                <XAxis type="number" />
-                <YAxis type="category" dataKey="muscleGroup" width={90} />
-                <Tooltip />
-                <Bar dataKey="sets" name="Sets">
-                  {workoutGroupChart.map((row) => (
-                    <Cell
-                      key={row.muscleGroup}
-                      fill={MUSCLE_COLORS[row.muscleGroup] || COLORS.other}
-                    />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+          {todaysWorkoutLogs.length > 0 &&
+            todaysWorkoutLogs.some((log) => log?.exercises?.length > 0) && (
+              <table className="fitnessTable" style={{ marginTop: "1rem" }}>
+                <thead>
+                  <tr>
+                    <th>Muscle Group</th>
+                    <th>Exercise</th>
+                    <th>Sets</th>
+                    <th>Reps</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {todaysWorkoutLogs.flatMap((log) =>
+                    (log?.exercises || []).map((ex, idx) => {
+                      const muscleGroup = ex?.muscleGroup || "other";
+                      const bgColor =
+                        MUSCLE_COLORS[muscleGroup] || COLORS.other;
+                      return (
+                        <tr key={`${log._id}-${idx}`}>
+                          <td>
+                            <span
+                              style={{
+                                display: "inline-block",
+                                backgroundColor: bgColor,
+                                color: "#ffffff",
+                                padding: "4px 10px",
+                                borderRadius: "12px",
+                                fontSize: "13px",
+                                fontWeight: 600,
+                                textTransform: "capitalize",
+                              }}
+                            >
+                              {muscleGroup}
+                            </span>
+                          </td>
+                          <td style={{ textTransform: "capitalize" }}>
+                            {ex?.name || "-"}
+                          </td>
+                          <td>{ex?.sets || 0}</td>
+                          <td>{ex?.repetitions || 0}</td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            )}
 
           <div className="fitnessMuted">
             Logs today: {todaysWorkoutLogs.length}
           </div>
 
-          <div style={{ marginTop: "1rem" }}>
+          <div style={{ marginTop: "8rem" }}>
             <strong>Weekly schedule</strong>
             <table className="fitnessTable" style={{ marginTop: "0.5rem" }}>
               <thead>
                 <tr>
                   <th>Day</th>
                   <th>Muscle groups</th>
-                  <th>Actions</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -666,7 +689,11 @@ const FitnessDashboard = () => {
                         <button
                           className="fitnessButton"
                           onClick={() => handleEditWorkoutDay(d)}
-                          style={{ fontSize: "12px", padding: "4px 8px" }}
+                          style={{
+                            fontSize: "13px",
+                            padding: "5px 9px",
+                            fontWeight: 700,
+                          }}
                         >
                           Edit
                         </button>

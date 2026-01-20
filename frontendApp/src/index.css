@@ -27,11 +27,15 @@ body {
 
 /* ===== AUTH CONTAINER (Login) ===== */
 .auth-container {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 20px;
+  overflow-y: auto;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
@@ -80,11 +84,15 @@ body {
 
 /* ===== REGISTRATION CONTAINER ===== */
 .registration-container {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 40px 20px;
+  overflow-y: auto;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
