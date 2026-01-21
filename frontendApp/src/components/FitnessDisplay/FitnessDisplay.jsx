@@ -9,7 +9,7 @@ const FitnessDisplay = () => {
 
   const logout = () => {
     userCtx.setAccessToken("");
-    localStorage.removeItem("refreshToken");
+    userCtx.setRefreshToken("");
     navigate("/login", { replace: true });
   };
 

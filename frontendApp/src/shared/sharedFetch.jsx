@@ -1,14 +1,7 @@
 let refreshInFlight = null;
 
 const sharedFetch = (options = {}) => {
-  const {
-    getRefreshToken = () =>
-      typeof localStorage === "undefined"
-        ? null
-        : localStorage.getItem("refreshToken"),
-    setAccessToken,
-    onAuthError,
-  } = options;
+  const { getRefreshToken, setAccessToken, onAuthError } = options;
 
   const refreshAccessToken = async () => {
     const refresh = getRefreshToken?.();
@@ -51,6 +44,7 @@ const sharedFetch = (options = {}) => {
 
   const shouldAttemptRefresh = (res, data) => {
     if (res.status !== 401) return false;
+    if (typeof getRefreshToken !== "function") return false;
     if (!getRefreshToken?.()) return false;
 
     const msg =

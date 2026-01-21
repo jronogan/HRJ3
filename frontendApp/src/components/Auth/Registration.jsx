@@ -17,13 +17,14 @@ const Registration = () => {
   const fetchData = useMemo(
     () =>
       sharedFetch({
+        getRefreshToken: () => userCtx.refreshToken,
         setAccessToken: userCtx.setAccessToken,
         onAuthError: () => {
-          localStorage.removeItem("refreshToken");
           userCtx.setAccessToken("");
+          userCtx.setRefreshToken("");
         },
       }),
-    [userCtx],
+    [userCtx]
   );
 
   const [formData, setFormData] = useState({
@@ -36,7 +37,7 @@ const Registration = () => {
     weight: "",
     gender: "",
     age: "",
-  activityLevel: "light",
+    activityLevel: "light",
     // Step2b stores optional BMI-derived recommendation info.
     recommendations: {
       bmi: null,
@@ -92,7 +93,7 @@ const Registration = () => {
         nutritionGoal: {
           caloriesPerDay: parseFloat(formData.nutritionGoal.caloriesPerDay),
           proteinGramsPerDay: parseFloat(
-            formData.nutritionGoal.proteinGramsPerDay,
+            formData.nutritionGoal.proteinGramsPerDay
           ),
           carbsGramsPerDay: parseFloat(formData.nutritionGoal.carbsGramsPerDay),
           fatsGramsPerDay: parseFloat(formData.nutritionGoal.fatsGramsPerDay),
@@ -106,7 +107,7 @@ const Registration = () => {
       const registerRes = await fetchData(
         "/users/register",
         "POST",
-        registrationData,
+        registrationData
       );
       if (!registerRes.ok) {
         throw new Error(registerRes.msg || "Registration failed");
@@ -120,7 +121,7 @@ const Registration = () => {
 
       if (!loginRes.ok) {
         throw new Error(
-          "Registration successful, but login failed. Please login manually.",
+          "Registration successful, but login failed. Please login manually."
         );
       }
 
@@ -130,13 +131,11 @@ const Registration = () => {
       const refresh = loginData?.refresh ?? loginData?.refreshToken;
       if (!access) {
         throw new Error(
-          "Registration successful, but no access token was returned from login.",
+          "Registration successful, but no access token was returned from login."
         );
       }
 
-      if (refresh) {
-        localStorage.setItem("refreshToken", refresh);
-      }
+      userCtx.setRefreshToken(refresh || "");
 
       userCtx.setAccessToken(access);
       if (loginData?.role) userCtx.setRole(loginData.role);
@@ -216,8 +215,8 @@ const Registration = () => {
                     step === currentStep
                       ? "active"
                       : step < currentStep
-                        ? "completed"
-                        : ""
+                      ? "completed"
+                      : ""
                   }`}
                 >
                   <div className="step-number">{step}</div>
