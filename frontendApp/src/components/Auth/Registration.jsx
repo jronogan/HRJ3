@@ -36,6 +36,7 @@ const Registration = () => {
     weight: "",
     gender: "",
     age: "",
+  activityLevel: "light",
     // Step2b stores optional BMI-derived recommendation info.
     recommendations: {
       bmi: null,
