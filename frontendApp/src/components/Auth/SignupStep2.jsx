@@ -263,9 +263,11 @@ const SignupStep2 = ({ onNext, onBack, formData, setFormData }) => {
               className="bmi-card"
               style={{
                 padding: "12px",
-                border: "1px solid #e5e7eb",
-                borderRadius: "8px",
-                background: "#f9fafb",
+                border: "1px solid rgba(255, 255, 255, 0.12)",
+                borderRadius: "12px",
+                background:
+                  "linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04))",
+                color: "rgba(255, 255, 255, 0.88)",
               }}
             >
               <div style={{ fontWeight: 600 }}>

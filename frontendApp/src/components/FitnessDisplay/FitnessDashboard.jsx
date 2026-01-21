@@ -399,7 +399,9 @@ const FitnessDashboard = () => {
 
       <div className="fitnessGrid">
         <div className="fitnessCard">
-          <h3>Nutrition (Daily)</h3>
+          <h3>
+            Nutrition <span className="fitnessHeaderMeta">(Daily)</span>
+          </h3>
           <div className="fitnessGrid">
             <div style={{ width: "100%", height: 240 }}>
               <ResponsiveContainer minWidth={0} minHeight={240}>
@@ -457,7 +459,12 @@ const FitnessDashboard = () => {
                   tickFormatter={(v) => `${v}%`}
                 />
                 <YAxis type="category" dataKey="name" />
-                <Tooltip content={<MacroTooltip />} />
+                <h3>
+                  Workout{" "}
+                  <span className="fitnessHeaderMeta">
+                    (Daily + Weekly Plan)
+                  </span>
+                </h3>
                 <Bar dataKey="pctBar" name="% of goal">
                   {macroRows.map((row) => (
                     <Cell
@@ -513,7 +520,10 @@ const FitnessDashboard = () => {
         </div>
 
         <div className="fitnessCard">
-          <h3>Workout (Daily + Weekly Plan)</h3>
+          <h3>
+            Workout{" "}
+            <span className="fitnessHeaderMeta">(Daily + Weekly Plan)</span>
+          </h3>
 
           <div
             className="fitnessMuted"
