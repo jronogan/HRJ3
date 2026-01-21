@@ -17,10 +17,11 @@ const WorkoutLogsPage = () => {
   const fetchData = useMemo(
     () =>
       sharedFetch({
+        getRefreshToken: () => userCtx.refreshToken,
         setAccessToken: userCtx.setAccessToken,
         onAuthError: () => {
-          localStorage.removeItem("refreshToken");
           userCtx.setAccessToken("");
+          userCtx.setRefreshToken("");
         },
       }),
     [userCtx]

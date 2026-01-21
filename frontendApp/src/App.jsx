@@ -14,12 +14,20 @@ import UserProfilePage from "./components/FitnessDisplay/UserProfilePage";
 
 function App() {
   const [accessToken, setAccessToken] = useState("");
+  const [refreshToken, setRefreshToken] = useState("");
   const [role, setRole] = useState("");
 
   return (
     <div className="container">
       <UserContext.Provider
-        value={{ accessToken, setAccessToken, role, setRole }}
+        value={{
+          accessToken,
+          setAccessToken,
+          refreshToken,
+          setRefreshToken,
+          role,
+          setRole,
+        }}
       >
         <Routes>
           <Route path="/" element={<Navigate to="/login" replace />} />

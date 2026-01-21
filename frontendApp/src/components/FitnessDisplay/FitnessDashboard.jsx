@@ -48,13 +48,14 @@ const FitnessDashboard = () => {
   const fetchData = useMemo(
     () =>
       sharedFetch({
+        getRefreshToken: () => userCtx.refreshToken,
         setAccessToken: userCtx.setAccessToken,
         onAuthError: () => {
-          localStorage.removeItem("refreshToken");
           userCtx.setAccessToken("");
+          userCtx.setRefreshToken("");
         },
       }),
-    [userCtx],
+    [userCtx]
   );
 
   const [isLoading, setIsLoading] = useState(true);
@@ -85,7 +86,7 @@ const FitnessDashboard = () => {
       "/users/me",
       "GET",
       undefined,
-      userCtx.accessToken,
+      userCtx.accessToken
     );
     if (!meRes.ok) {
       setIsLoading(false);
@@ -108,13 +109,13 @@ const FitnessDashboard = () => {
         `/nutritionlogs/users/${userId}`,
         "GET",
         undefined,
-        userCtx.accessToken,
+        userCtx.accessToken
       ),
       fetchData(
         `/workoutlogs/user/${userId}`,
         "GET",
         undefined,
-        userCtx.accessToken,
+        userCtx.accessToken
       ),
     ]);
 
@@ -167,7 +168,7 @@ const FitnessDashboard = () => {
         carbsGramsPerDay: parseFloat(nutritionForm.carbsGramsPerDay),
         fatsGramsPerDay: parseFloat(nutritionForm.fatsGramsPerDay),
       },
-      userCtx.accessToken,
+      userCtx.accessToken
     );
 
     if (!res.ok) {
@@ -190,7 +191,7 @@ const FitnessDashboard = () => {
     setWorkoutDayForm((prev) =>
       prev.includes(muscleGroup)
         ? prev.filter((g) => g !== muscleGroup)
-        : [...prev, muscleGroup],
+        : [...prev, muscleGroup]
     );
   };
 
@@ -213,7 +214,7 @@ const FitnessDashboard = () => {
         daysPerWeek: workoutGoal.daysPerWeek,
         schedule: updatedSchedule,
       },
-      userCtx.accessToken,
+      userCtx.accessToken
     );
 
     if (!res.ok) {
@@ -242,7 +243,7 @@ const FitnessDashboard = () => {
   const workoutGoal = me?.workoutGoal;
 
   const todaysNutritionLogs = nutritionLogs.filter(
-    (l) => toLocalISODate(l?.date) === selectedDate,
+    (l) => toLocalISODate(l?.date) === selectedDate
   );
 
   const nutritionTotals = todaysNutritionLogs.reduce(
@@ -255,7 +256,7 @@ const FitnessDashboard = () => {
         fats: acc.fats + t.fats,
       };
     },
-    { calories: 0, protein: 0, carbs: 0, fats: 0 },
+    { calories: 0, protein: 0, carbs: 0, fats: 0 }
   );
 
   const calorieGoal = nutritionGoal?.caloriesPerDay ?? 0;
@@ -337,7 +338,7 @@ const FitnessDashboard = () => {
   });
 
   const todaysWorkoutLogs = workoutLogs.filter(
-    (l) => toLocalISODate(l?.date) === selectedDate,
+    (l) => toLocalISODate(l?.date) === selectedDate
   );
 
   const workoutByGroup = todaysWorkoutLogs.reduce((acc, log) => {
@@ -354,12 +355,12 @@ const FitnessDashboard = () => {
   }, new Map());
 
   const workoutGroupChart = Array.from(workoutByGroup.entries()).map(
-    ([muscleGroup, stats]) => ({ muscleGroup, sets: stats.sets }),
+    ([muscleGroup, stats]) => ({ muscleGroup, sets: stats.sets })
   );
 
   const workoutDailyChartHeight = Math.max(
     240,
-    (workoutGroupChart.length || 0) * 28 + 40,
+    (workoutGroupChart.length || 0) * 28 + 40
   );
 
   const dayKey = weekdayKeyForDate(selectedDate);
@@ -415,8 +416,8 @@ const FitnessDashboard = () => {
                         slice.name === "Consumed" || slice.name === "Goal"
                           ? COLORS.caloriesConsumed
                           : slice.name === "Overflow"
-                            ? COLORS.caloriesOverflow
-                            : COLORS.caloriesRemaining;
+                          ? COLORS.caloriesOverflow
+                          : COLORS.caloriesRemaining;
 
                       return <Cell key={slice.name} fill={fill} />;
                     })}
@@ -465,8 +466,8 @@ const FitnessDashboard = () => {
                         row.name === "Protein"
                           ? COLORS.protein
                           : row.name === "Carbs"
-                            ? COLORS.carbs
-                            : COLORS.fats
+                          ? COLORS.carbs
+                          : COLORS.fats
                       }
                     />
                   ))}
@@ -629,7 +630,7 @@ const FitnessDashboard = () => {
                           <td>{ex?.repetitions || 0}</td>
                         </tr>
                       );
-                    }),
+                    })
                   )}
                 </tbody>
               </table>
@@ -883,7 +884,7 @@ const FitnessDashboard = () => {
                         />
                         {group.charAt(0).toUpperCase() + group.slice(1)}
                       </label>
-                    ),
+                    )
                   )}
                 </div>
               </div>

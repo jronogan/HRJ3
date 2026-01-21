@@ -13,10 +13,11 @@ const Login = () => {
   const fetchData = useMemo(
     () =>
       sharedFetch({
+        getRefreshToken: () => userCtx.refreshToken,
         setAccessToken: userCtx.setAccessToken,
         onAuthError: () => {
-          localStorage.removeItem("refreshToken");
           userCtx.setAccessToken("");
+          userCtx.setRefreshToken("");
         },
       }),
     [userCtx]
@@ -46,9 +47,7 @@ const Login = () => {
         throw new Error("Login succeeded but no access token was returned");
       }
 
-      if (refresh) {
-        localStorage.setItem("refreshToken", refresh);
-      }
+      userCtx.setRefreshToken(refresh || "");
 
       userCtx.setAccessToken(access);
       if (data?.role) userCtx.setRole(data.role);
