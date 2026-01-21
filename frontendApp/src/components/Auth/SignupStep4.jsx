@@ -11,6 +11,8 @@ const DAYS = [
   "sunday",
 ];
 
+// Top row: upper arms, chest, back, lower arms, shoulders (5 items)
+// Bottom row: cardio, lower legs, waist, upper legs (4 items)
 const MUSCLE_GROUPS = [
   { value: "chest", label: "Chest" },
   { value: "lower arms", label: "Lower Arms" },
@@ -54,8 +56,8 @@ const SignupStep4 = ({
           ...prev.workoutGoal?.schedule,
           [day]: { muscleGroups: muscleGroup ? [muscleGroup] : [] },
         },
-      },
-    }));
+      };
+    });
   };
 
   const validateForm = () => {
@@ -153,31 +155,40 @@ const SignupStep4 = ({
         </div>
 
         <div className="workout-schedule">
-          <p className="schedule-subtitle">Select muscle group for each day:</p>
+          <p className="schedule-subtitle">
+            Select one or more muscle groups for each day:
+          </p>
           {DAYS.map((day) => {
             const dayData = formData.workoutGoal?.schedule?.[day] || {};
-            const selectedMuscle =
-              dayData.muscleGroups && dayData.muscleGroups.length > 0
-                ? dayData.muscleGroups[0]
-                : "";
+            const selectedMuscles = Array.isArray(dayData.muscleGroups)
+              ? dayData.muscleGroups
+              : [];
 
             return (
               <div key={day} className="workout-day-row">
                 <label className="day-label">
                   {day.charAt(0).toUpperCase() + day.slice(1)}
                 </label>
-                <select
-                  value={selectedMuscle || ""}
-                  onChange={(e) => handleDayChange(day, e.target.value)}
-                  className="day-select"
-                >
-                  <option value="">Rest Day</option>
-                  {MUSCLE_GROUPS.map((muscle) => (
-                    <option key={muscle.value} value={muscle.value}>
-                      {muscle.label}
-                    </option>
-                  ))}
-                </select>
+                <div className="day-multiselect-grid">
+                  <div className="muscle-row">
+                    {MUSCLE_GROUPS.map((muscle) => (
+                      <label key={muscle.value} className="checkbox-label">
+                        <input
+                          type="checkbox"
+                          className="checkbox-input"
+                          checked={selectedMuscles.includes(muscle.value)}
+                          onChange={() => handleToggleGroup(day, muscle.value)}
+                        />
+                        <span className="checkbox-text">{muscle.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                {selectedMuscles.length === 0 && (
+                  <div className="rest-day-hint">
+                    No groups selected → Rest Day
+                  </div>
+                )}
               </div>
             );
           })}

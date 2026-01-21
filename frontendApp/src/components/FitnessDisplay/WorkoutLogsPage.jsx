@@ -1,12 +1,12 @@
 import React, { use, useEffect, useMemo, useState } from "react";
 import UserContext from "../../context/user";
 import sharedFetch from "../../shared/sharedFetch";
-import { toLocalISODate } from "./fitnessUtils";
+import { formatWord, toLocalISODate } from "./fitnessUtils";
 import "./FitnessDisplay.css";
 
 const emptyExercise = () => ({
   name: "",
-  muscleGroup: "chest",
+  muscleGroup: "lower arms",
   sets: "",
   repetitions: "",
   weight: "",
@@ -14,7 +14,17 @@ const emptyExercise = () => ({
 
 const WorkoutLogsPage = () => {
   const userCtx = use(UserContext);
-  const fetchData = useMemo(() => sharedFetch(), []);
+  const fetchData = useMemo(
+    () =>
+      sharedFetch({
+        setAccessToken: userCtx.setAccessToken,
+        onAuthError: () => {
+          localStorage.removeItem("refreshToken");
+          userCtx.setAccessToken("");
+        },
+      }),
+    [userCtx]
+  );
 
   const [userId, setUserId] = useState(null);
   const [logs, setLogs] = useState([]);
@@ -38,7 +48,7 @@ const WorkoutLogsPage = () => {
       "/users/me",
       "GET",
       undefined,
-      userCtx.accessToken,
+      userCtx.accessToken
     );
     if (!meRes.ok) {
       setIsLoading(false);
@@ -59,7 +69,7 @@ const WorkoutLogsPage = () => {
       `/workoutlogs/user/${uid}`,
       "GET",
       undefined,
-      userCtx.accessToken,
+      userCtx.accessToken
     );
 
     if (!logsRes.ok) {
@@ -92,7 +102,7 @@ const WorkoutLogsPage = () => {
       .filter((ex) => String(ex.name).trim().length)
       .map((ex) => ({
         name: String(ex.name).trim(),
-        muscleGroup: ex.muscleGroup,
+        muscleGroup: String(ex.muscleGroup || "lower arms").toLowerCase(),
         sets: Number(ex.sets),
         repetitions: Number(ex.repetitions),
         weight: Number(ex.weight),
@@ -113,7 +123,7 @@ const WorkoutLogsPage = () => {
       "/workoutlogs",
       "POST",
       body,
-      userCtx.accessToken,
+      userCtx.accessToken
     );
     if (!res.ok) {
       setError(res.msg || "Failed to create workout log");
@@ -130,7 +140,7 @@ const WorkoutLogsPage = () => {
       `/workoutlogs/${id}`,
       "DELETE",
       {},
-      userCtx.accessToken,
+      userCtx.accessToken
     );
     if (!res.ok) {
       setError(res.msg || "Failed to delete workout log");
@@ -146,11 +156,11 @@ const WorkoutLogsPage = () => {
     setEditExercises(
       existing.map((ex) => ({
         name: ex.name ?? "",
-        muscleGroup: ex.muscleGroup ?? "chest",
+        muscleGroup: String(ex.muscleGroup ?? "lower arms").toLowerCase(),
         sets: ex.sets ?? "",
         repetitions: ex.repetitions ?? "",
         weight: ex.weight ?? "",
-      })),
+      }))
     );
   };
 
@@ -162,7 +172,7 @@ const WorkoutLogsPage = () => {
       .filter((ex) => String(ex.name).trim().length)
       .map((ex) => ({
         name: String(ex.name).trim(),
-        muscleGroup: ex.muscleGroup,
+        muscleGroup: String(ex.muscleGroup || "lower arms").toLowerCase(),
         sets: Number(ex.sets),
         repetitions: Number(ex.repetitions),
         weight: Number(ex.weight),
@@ -179,7 +189,7 @@ const WorkoutLogsPage = () => {
       `/workoutlogs/${editingLogId}`,
       "PATCH",
       body,
-      userCtx.accessToken,
+      userCtx.accessToken
     );
     if (!res.ok) {
       setError(res.msg || "Failed to update workout log");
@@ -269,7 +279,6 @@ const WorkoutLogsPage = () => {
                         }}
                       >
                         {[
-                          "neck",
                           "lower arms",
                           "shoulders",
                           "cardio",
@@ -281,7 +290,7 @@ const WorkoutLogsPage = () => {
                           "waist",
                         ].map((g) => (
                           <option key={g} value={g}>
-                            {g}
+                            {formatWord(g)}
                           </option>
                         ))}
                       </select>
@@ -483,7 +492,6 @@ const WorkoutLogsPage = () => {
                               }}
                             >
                               {[
-                                "neck",
                                 "lower arms",
                                 "shoulders",
                                 "cardio",
@@ -495,7 +503,7 @@ const WorkoutLogsPage = () => {
                                 "waist",
                               ].map((g) => (
                                 <option key={g} value={g}>
-                                  {g}
+                                  {formatWord(g)}
                                 </option>
                               ))}
                             </select>
@@ -550,10 +558,10 @@ const WorkoutLogsPage = () => {
                               className="fitnessButton"
                               onClick={() => {
                                 const next = editExercises.filter(
-                                  (_, i) => i !== idx,
+                                  (_, i) => i !== idx
                                 );
                                 setEditExercises(
-                                  next.length ? next : [emptyExercise()],
+                                  next.length ? next : [emptyExercise()]
                                 );
                               }}
                             >

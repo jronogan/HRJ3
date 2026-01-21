@@ -58,6 +58,7 @@ export const createNutritionLog = async (req, res) => {
     await newLog.save();
     res.status(201).json(newLog);
   } catch (error) {
+    console.log(error.message);
     res.status(500).json({ message: "Error creating nutrition log" });
   }
 };
@@ -154,7 +155,7 @@ export const updateNutritionLogFoodItem = async (req, res) => {
         new: true,
         runValidators: true,
         arrayFilters: [{ "item._id": foodItemId }],
-      },
+      }
     );
 
     if (!updatedLog) {
@@ -162,7 +163,7 @@ export const updateNutritionLogFoodItem = async (req, res) => {
     }
 
     const updatedItem = updatedLog.foodItems?.find(
-      (fi) => String(fi._id) === String(foodItemId),
+      (fi) => String(fi._id) === String(foodItemId)
     );
 
     if (!updatedItem) {

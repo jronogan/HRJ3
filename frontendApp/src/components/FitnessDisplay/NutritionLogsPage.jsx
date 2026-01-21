@@ -6,7 +6,9 @@ import FoodItemRow from "./FoodItemRow";
 import "./FitnessDisplay.css";
 
 const emptyFoodItem = () => ({
+  meal: "breakfast",
   name: "",
+  amount: "",
   calories: "",
   protein: "",
   carbs: "",
@@ -15,19 +17,36 @@ const emptyFoodItem = () => ({
 
 const NutritionLogsPage = () => {
   const userCtx = use(UserContext);
-  const fetchData = useMemo(() => sharedFetch(), []);
+  const fetchData = useMemo(
+    () =>
+      sharedFetch({
+        setAccessToken: userCtx.setAccessToken,
+        onAuthError: () => {
+          localStorage.removeItem("refreshToken");
+          userCtx.setAccessToken("");
+        },
+      }),
+    [userCtx]
+  );
 
   const [userId, setUserId] = useState(null);
   const [logs, setLogs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const [meal, setMeal] = useState("breakfast");
   const [date, setDate] = useState(toLocalISODate(new Date()));
   const [foodItems, setFoodItems] = useState([emptyFoodItem()]);
 
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQty, setSearchQty] = useState("");
+  const [searchFood, setSearchFood] = useState("");
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchError, setSearchError] = useState(null);
+  const [searchResults, setSearchResults] = useState([]);
+  const [selectedResultIndex, setSelectedResultIndex] = useState(0);
+  const [extractRowIndex, setExtractRowIndex] = useState(0);
+
   const [editingLogId, setEditingLogId] = useState(null);
-  const [editMeal, setEditMeal] = useState("breakfast");
   const [editDate, setEditDate] = useState(toLocalISODate(new Date()));
 
   const [filterDate, setFilterDate] = useState("");
@@ -93,7 +112,9 @@ const NutritionLogsPage = () => {
     const cleanItems = foodItems
       .filter((i) => String(i.name).trim().length)
       .map((i) => ({
+        meal: String(i.meal || "breakfast"),
         name: String(i.name).trim(),
+        amount: String(i.amount || "").trim() || undefined,
         calories: i.calories === "" ? undefined : Number(i.calories),
         protein: i.protein === "" ? undefined : Number(i.protein),
         carbs: i.carbs === "" ? undefined : Number(i.carbs),
@@ -107,7 +128,6 @@ const NutritionLogsPage = () => {
 
     const body = {
       userId,
-      meal,
       date: date ? new Date(date + "T12:00:00").toISOString() : undefined,
       foodItems: cleanItems,
     };
@@ -144,7 +164,6 @@ const NutritionLogsPage = () => {
 
   const startEdit = (log) => {
     setEditingLogId(log._id);
-    setEditMeal(log.meal);
     setEditDate(toLocalISODate(log.date));
   };
 
@@ -153,7 +172,6 @@ const NutritionLogsPage = () => {
     setError(null);
 
     const body = {
-      meal: editMeal,
       date: editDate
         ? new Date(editDate + "T12:00:00").toISOString()
         : undefined,
@@ -193,6 +211,95 @@ const NutritionLogsPage = () => {
     await load();
   };
 
+  const findFood = async () => {
+    setSearchError(null);
+    setSearchLoading(true);
+
+    try {
+      const apiKey = import.meta.env.VITE_NUTRITION_API_KEY;
+      if (!apiKey) {
+        setSearchError("Missing VITE_NUTRITION_API_KEY in .env");
+        setSearchLoading(false);
+        return;
+      }
+
+      const query = `${String(searchQty || "").trim()} ${String(
+        searchFood || ""
+      ).trim()}`.trim();
+
+      if (!query) {
+        setSearchError("Enter a quantity and food item to search");
+        setSearchLoading(false);
+        return;
+      }
+
+      const url = `https://api.calorieninjas.com/v1/nutrition?query=${encodeURIComponent(
+        query
+      )}`;
+
+      const res = await fetch(url, {
+        method: "GET",
+        headers: {
+          "x-api-key": apiKey,
+        },
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setSearchError(data?.msg || data?.message || "Search failed");
+        setSearchResults([]);
+        setSearchLoading(false);
+        return;
+      }
+
+      const items = Array.isArray(data?.items) ? data.items : [];
+      setSearchResults(items);
+      setSelectedResultIndex(0);
+    } catch (e) {
+      setSearchError(e?.message || "Search failed");
+      setSearchResults([]);
+    } finally {
+      setSearchLoading(false);
+    }
+  };
+
+  const extractToRow = () => {
+    const item = searchResults?.[selectedResultIndex];
+    if (!item) {
+      setSearchError("Select a result to extract");
+      return;
+    }
+
+    setFoodItems((prev) => {
+      const next = [...prev];
+      const idx = Math.min(
+        Math.max(Number(extractRowIndex) || 0, 0),
+        next.length - 1
+      );
+
+      const round = (n) =>
+        n === null || n === undefined || Number.isNaN(Number(n))
+          ? ""
+          : String(Math.round(Number(n) * 10) / 10);
+
+      next[idx] = {
+        ...next[idx],
+        name: item.name ?? next[idx].name ?? "",
+        amount:
+          item.serving_size_g === null ||
+          item.serving_size_g === undefined ||
+          Number.isNaN(Number(item.serving_size_g))
+            ? next[idx].amount ?? ""
+            : `${Math.round(Number(item.serving_size_g))}g`,
+        calories: round(item.calories),
+        protein: round(item.protein_g),
+        carbs: round(item.carbohydrates_total_g),
+        fats: round(item.fat_total_g),
+      };
+      return next;
+    });
+  };
+
   if (isLoading) {
     return <div className="fitnessCard">Loading nutrition logs...</div>;
   }
@@ -219,7 +326,10 @@ const NutritionLogsPage = () => {
       <div className="fitnessCard" style={{ marginBottom: "1rem" }}>
         <h3>Add Nutrition Log</h3>
         <form onSubmit={createLog} className="fitnessGrid">
-          <div className="fitnessRow" style={{ gridColumn: "1 / -1" }}>
+          <div
+            className="fitnessRow"
+            style={{ gridColumn: "1 / -1", alignItems: "flex-end" }}
+          >
             <div className="fitnessField">
               <label>Date</label>
               <input
@@ -229,27 +339,142 @@ const NutritionLogsPage = () => {
                 onChange={(e) => setDate(e.target.value)}
               />
             </div>
-
             <div className="fitnessField">
-              <label>Meal</label>
-              <select
-                className="fitnessInput"
-                value={meal}
-                onChange={(e) => setMeal(e.target.value)}
+              <label>&nbsp;</label>
+              <button
+                type="button"
+                className="fitnessButton"
+                onClick={() => setIsSearchOpen((v) => !v)}
               >
-                <option value="breakfast">breakfast</option>
-                <option value="lunch">lunch</option>
-                <option value="dinner">dinner</option>
-                <option value="snack">snack</option>
-              </select>
+                Search
+              </button>
             </div>
           </div>
+
+          {isSearchOpen ? (
+            <div style={{ gridColumn: "1 / -1" }}>
+              <div className="fitnessRow" style={{ alignItems: "flex-end" }}>
+                <div className="fitnessField">
+                  <label>Food item</label>
+                  <input
+                    className="fitnessInput"
+                    value={searchFood}
+                    onChange={(e) => setSearchFood(e.target.value)}
+                    placeholder="e.g. banana"
+                    disabled={searchLoading}
+                  />
+                </div>
+                <div className="fitnessField">
+                  <label>Quantity</label>
+                  <input
+                    className="fitnessInput"
+                    value={searchQty}
+                    onChange={(e) => setSearchQty(e.target.value)}
+                    placeholder="e.g. 2"
+                    disabled={searchLoading}
+                  />
+                </div>
+                <div className="fitnessField">
+                  <label>&nbsp;</label>
+                  <button
+                    type="button"
+                    className="fitnessButtonPrimary"
+                    onClick={findFood}
+                    disabled={searchLoading}
+                  >
+                    {searchLoading ? "Finding..." : "Find"}
+                  </button>
+                </div>
+              </div>
+
+              {searchError ? (
+                <div className="fitnessError" style={{ marginTop: "0.5rem" }}>
+                  {searchError}
+                </div>
+              ) : null}
+
+              {searchResults.length ? (
+                <div
+                  className="fitnessTableWrap"
+                  style={{ marginTop: "0.75rem" }}
+                >
+                  <table className="fitnessTable">
+                    <thead>
+                      <tr>
+                        <th></th>
+                        <th>Food</th>
+                        <th>Serving (g)</th>
+                        <th>Calories</th>
+                        <th>Protein</th>
+                        <th>Carbs</th>
+                        <th>Fats</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {searchResults.map((r, idx) => (
+                        <tr key={`${r.name}-${idx}`}>
+                          <td>
+                            <input
+                              type="radio"
+                              name="nutritionSearchPick"
+                              checked={selectedResultIndex === idx}
+                              onChange={() => setSelectedResultIndex(idx)}
+                            />
+                          </td>
+                          <td>{r.name}</td>
+                          <td>{r.serving_size_g ?? "—"}</td>
+                          <td>{r.calories ?? "—"}</td>
+                          <td>{r.protein_g ?? "—"}</td>
+                          <td>{r.carbohydrates_total_g ?? "—"}</td>
+                          <td>{r.fat_total_g ?? "—"}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : null}
+
+              {searchResults.length ? (
+                <div
+                  className="fitnessRow"
+                  style={{ marginTop: "0.75rem", alignItems: "flex-end" }}
+                >
+                  <div className="fitnessField">
+                    <label>Extract to row</label>
+                    <select
+                      className="fitnessInput"
+                      value={extractRowIndex}
+                      onChange={(e) => setExtractRowIndex(e.target.value)}
+                    >
+                      {foodItems.map((_, idx) => (
+                        <option key={idx} value={idx}>
+                          Row {idx + 1}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="fitnessField">
+                    <label>&nbsp;</label>
+                    <button
+                      type="button"
+                      className="fitnessButton"
+                      onClick={extractToRow}
+                    >
+                      Extract
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
 
           <div className="fitnessTableWrap" style={{ gridColumn: "1 / -1" }}>
             <table className="fitnessTable">
               <thead>
                 <tr>
+                  <th>Meal</th>
                   <th>Food</th>
+                  <th>Serving</th>
                   <th>Calories</th>
                   <th>Protein</th>
                   <th>Carbs</th>
@@ -260,6 +485,22 @@ const NutritionLogsPage = () => {
               <tbody>
                 {foodItems.map((item, idx) => (
                   <tr key={idx}>
+                    <td>
+                      <select
+                        className="fitnessInput"
+                        value={item.meal}
+                        onChange={(e) => {
+                          const next = [...foodItems];
+                          next[idx] = { ...next[idx], meal: e.target.value };
+                          setFoodItems(next);
+                        }}
+                      >
+                        <option value="breakfast">Breakfast</option>
+                        <option value="lunch">Lunch</option>
+                        <option value="dinner">Dinner</option>
+                        <option value="snack">Snack</option>
+                      </select>
+                    </td>
                     <td>
                       <input
                         className="fitnessInput"
@@ -274,6 +515,18 @@ const NutritionLogsPage = () => {
                     <td>
                       <input
                         className="fitnessInput"
+                        value={item.amount}
+                        onChange={(e) => {
+                          const next = [...foodItems];
+                          next[idx] = { ...next[idx], amount: e.target.value };
+                          setFoodItems(next);
+                        }}
+                        placeholder="e.g. 100g"
+                      />
+                    </td>
+                    <td>
+                      <input
+                        className="fitnessInput fitnessInputNarrow"
                         value={item.calories}
                         onChange={(e) => {
                           const next = [...foodItems];
@@ -287,7 +540,7 @@ const NutritionLogsPage = () => {
                     </td>
                     <td>
                       <input
-                        className="fitnessInput"
+                        className="fitnessInput fitnessInputNarrow"
                         value={item.protein}
                         onChange={(e) => {
                           const next = [...foodItems];
@@ -298,7 +551,7 @@ const NutritionLogsPage = () => {
                     </td>
                     <td>
                       <input
-                        className="fitnessInput"
+                        className="fitnessInput fitnessInputNarrow"
                         value={item.carbs}
                         onChange={(e) => {
                           const next = [...foodItems];
@@ -309,7 +562,7 @@ const NutritionLogsPage = () => {
                     </td>
                     <td>
                       <input
-                        className="fitnessInput"
+                        className="fitnessInput fitnessInputNarrow"
                         value={item.fats}
                         onChange={(e) => {
                           const next = [...foodItems];
@@ -389,14 +642,14 @@ const NutritionLogsPage = () => {
               style={{ justifyContent: "space-between" }}
             >
               <div>
-                <strong>{toLocalISODate(log.date)}</strong> — {log.meal}
+                <strong>{toLocalISODate(log.date)}</strong>
               </div>
               <div className="fitnessRow">
                 <button
                   className="fitnessButton"
                   onClick={() => startEdit(log)}
                 >
-                  Edit meal/date
+                  Edit date
                 </button>
                 <button
                   className="fitnessButton"
@@ -415,16 +668,6 @@ const NutritionLogsPage = () => {
                   value={editDate}
                   onChange={(e) => setEditDate(e.target.value)}
                 />
-                <select
-                  className="fitnessInput"
-                  value={editMeal}
-                  onChange={(e) => setEditMeal(e.target.value)}
-                >
-                  <option value="breakfast">breakfast</option>
-                  <option value="lunch">lunch</option>
-                  <option value="dinner">dinner</option>
-                  <option value="snack">snack</option>
-                </select>
                 <button className="fitnessButtonPrimary" onClick={saveEdit}>
                   Save
                 </button>
@@ -441,7 +684,9 @@ const NutritionLogsPage = () => {
               <table className="fitnessTable">
                 <thead>
                   <tr>
+                    <th>Meal</th>
                     <th>Food</th>
+                    <th>Serving</th>
                     <th>Calories</th>
                     <th>Protein</th>
                     <th>Carbs</th>

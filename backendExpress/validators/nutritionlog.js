@@ -142,6 +142,6 @@ export const validateNutritionLogPatch = [
     .not()
     .exists()
     .withMessage(
-      "foodItems cannot be patched via PATCH /nutritionlogs/:id. Use PATCH /nutritionlogs/:id/fooditems/:foodItemId or PUT /nutritionlogs/:id.",
+      "foodItems cannot be patched via PATCH /nutritionlogs/:id. Use PATCH /nutritionlogs/:id/fooditems/:foodItemId or PUT /nutritionlogs/:id."
     ),
 ];

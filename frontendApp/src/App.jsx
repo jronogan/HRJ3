@@ -10,6 +10,7 @@ import Login from "./components/Auth/Login";
 import Registration from "./components/Auth/Registration";
 import WorkoutExercisePage from "./components/FitnessDisplay/WorkoutExercisePage";
 import WorkoutExerciseBodyPart from "./components/FitnessDisplay/WorkoutExerciseBodyPart";
+import UserProfilePage from "./components/FitnessDisplay/UserProfilePage";
 
 function App() {
   const [accessToken, setAccessToken] = useState("");
@@ -40,6 +41,7 @@ function App() {
               path="workout-exercises/:muscleGroup"
               element={<WorkoutExerciseBodyPart />}
             />
+            <Route path="user-profile" element={<UserProfilePage />} />
             <Route path="*" element={<Navigate to="/fitness" replace />} />
           </Route>
         </Routes>

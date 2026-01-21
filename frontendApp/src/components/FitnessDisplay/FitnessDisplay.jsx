@@ -21,6 +21,7 @@ const FitnessDisplay = () => {
           <Link to="/fitness/nutrition-logs">Nutrition Logs</Link>
           <Link to="/fitness/workout-logs">Workout Logs</Link>
           <Link to="/fitness/workout-exercises">Workout Exercises</Link>
+          <Link to="/fitness/user-profile">User Profile</Link>
         </div>
         <button className="fitnessButton" onClick={logout}>
           Logout
