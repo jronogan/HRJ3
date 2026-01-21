@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const FoodItemRow = ({ foodItem, onSave }) => {
+const FoodItemRow = ({ foodItem, onDelete, onSave }) => {
   const [meal, setMeal] = useState(foodItem?.meal ?? "breakfast");
   const [name, setName] = useState(foodItem?.name ?? "");
   const [amount, setAmount] = useState(foodItem?.amount ?? "");
@@ -67,23 +67,37 @@ const FoodItemRow = ({ foodItem, onSave }) => {
         />
       </td>
       <td>
-        <button
-          className="fitnessButton"
-          type="button"
-          onClick={() =>
-            onSave({
-              meal,
-              name,
-              amount: String(amount || "").trim() || undefined,
-              calories: calories === "" ? undefined : Number(calories),
-              protein: protein === "" ? undefined : Number(protein),
-              carbs: carbs === "" ? undefined : Number(carbs),
-              fats: fats === "" ? undefined : Number(fats),
-            })
-          }
+        <div
+          className="fitnessRow"
+          style={{ flexWrap: "nowrap", gap: "0.5rem" }}
         >
-          Save item
-        </button>
+          <button
+            className="fitnessButton"
+            type="button"
+            onClick={onDelete}
+            style={{ whiteSpace: "nowrap" }}
+          >
+            Delete item
+          </button>
+          <button
+            className="fitnessButton"
+            type="button"
+            onClick={() =>
+              onSave({
+                meal,
+                name,
+                amount: String(amount || "").trim() || undefined,
+                calories: calories === "" ? undefined : Number(calories),
+                protein: protein === "" ? undefined : Number(protein),
+                carbs: carbs === "" ? undefined : Number(carbs),
+                fats: fats === "" ? undefined : Number(fats),
+              })
+            }
+            style={{ whiteSpace: "nowrap" }}
+          >
+            Save item
+          </button>
+        </div>
       </td>
     </tr>
   );
