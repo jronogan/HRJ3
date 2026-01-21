@@ -459,12 +459,7 @@ const FitnessDashboard = () => {
                   tickFormatter={(v) => `${v}%`}
                 />
                 <YAxis type="category" dataKey="name" />
-                <h3>
-                  Workout{" "}
-                  <span className="fitnessHeaderMeta">
-                    (Daily + Weekly Plan)
-                  </span>
-                </h3>
+                <Tooltip content={<MacroTooltip />} />
                 <Bar dataKey="pctBar" name="% of goal">
                   {macroRows.map((row) => (
                     <Cell
