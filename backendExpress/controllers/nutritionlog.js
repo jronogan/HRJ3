@@ -63,31 +63,6 @@ export const createNutritionLog = async (req, res) => {
   }
 };
 
-export const updateNutritionLog = async (req, res) => {
-  const { id } = req.params;
-  const { userId, foodItems, date } = req.body;
-
-  try {
-    const updateLog = {};
-    if (userId) updateLog.userId = userId;
-    if (foodItems) updateLog.foodItems = foodItems;
-    if (date) updateLog.date = date;
-
-    const updatedLog = await NutritionLog.findByIdAndUpdate(id, updateLog, {
-      new: true,
-      runValidators: true,
-    });
-
-    if (!updatedLog) {
-      return res.status(404).json({ message: "Nutrition log not found" });
-    }
-
-    res.status(200).json(updatedLog);
-  } catch (error) {
-    res.status(500).json({ message: "Error updating nutrition log" });
-  }
-};
-
 // Patch *top-level* fields without replacing arrays.
 // Use this for changes like meal/date.
 // Route shape: PATCH /nutritionlogs/:id
@@ -187,5 +162,35 @@ export const deleteNutritionLog = async (req, res) => {
     res.status(200).json({ message: "Nutrition log deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: "Error deleting nutrition log" });
+  }
+};
+
+// DELETE one food item inside a log
+// Route shape: DELETE /nutritionlogs/:id/fooditems/:foodItemId
+export const deleteNutritionLogFoodItem = async (req, res) => {
+  const { id, foodItemId } = req.params;
+
+  try {
+    const log = await NutritionLog.findById(id);
+    if (!log) {
+      return res.status(404).json({ message: "Nutrition log not found" });
+    }
+
+    const exists = (log.foodItems || []).some(
+      (fi) => String(fi._id) === String(foodItemId)
+    );
+    if (!exists) {
+      return res.status(404).json({ message: "Food item not found" });
+    }
+
+    const updatedLog = await NutritionLog.findByIdAndUpdate(
+      id,
+      { $pull: { foodItems: { _id: foodItemId } } },
+      { new: true, runValidators: true }
+    );
+
+    return res.status(200).json({ log: updatedLog });
+  } catch (error) {
+    return res.status(500).json({ message: "Error deleting food item" });
   }
 };
