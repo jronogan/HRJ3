@@ -2,11 +2,11 @@ import express from "express";
 import {
   createNutritionLog,
   deleteNutritionLog,
+  deleteNutritionLogFoodItem,
   getNutritionLogById,
   getNutritionLogs,
   getNutritionLogsByUserId,
   patchNutritionLog,
-  updateNutritionLog,
   updateNutritionLogFoodItem,
 } from "../controllers/nutritionlog.js";
 import { validate } from "../validators/validate.js";
@@ -67,6 +67,13 @@ router.delete(
   validateNutritionLogIdParam,
   validate,
   deleteNutritionLog
+);
+router.delete(
+  "/:id/fooditems/:foodItemId",
+  isSignedIn,
+  validateNutritionLogFoodItemParams,
+  validate,
+  deleteNutritionLogFoodItem
 );
 
 export default router;

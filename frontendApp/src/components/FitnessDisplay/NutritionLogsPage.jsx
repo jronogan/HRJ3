@@ -211,6 +211,24 @@ const NutritionLogsPage = () => {
     await load();
   };
 
+  const deleteFoodItem = async (logId, foodItemId) => {
+    setError(null);
+
+    const res = await fetchData(
+      `/nutritionlogs/${logId}/fooditems/${foodItemId}`,
+      "DELETE",
+      {},
+      userCtx.accessToken
+    );
+
+    if (!res.ok) {
+      setError(res.msg || "Failed to delete food item");
+      return;
+    }
+
+    await load();
+  };
+
   const findFood = async () => {
     setSearchError(null);
     setSearchLoading(true);
@@ -699,6 +717,7 @@ const NutritionLogsPage = () => {
                     <FoodItemRow
                       key={fi._id}
                       foodItem={fi}
+                      onDelete={() => deleteFoodItem(log._id, fi._id)}
                       onSave={(patch) => patchFoodItem(log._id, fi._id, patch)}
                     />
                   ))}
