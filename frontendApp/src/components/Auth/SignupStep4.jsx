@@ -56,6 +56,35 @@ const SignupStep4 = ({
           ...prev.workoutGoal?.schedule,
           [day]: { muscleGroups: muscleGroup ? [muscleGroup] : [] },
         },
+      },
+    }));
+  };
+
+  const handleToggleGroup = (day, muscleValue) => {
+    setFormData((prev) => {
+      const prevSchedule = prev.workoutGoal?.schedule || {};
+      const prevDay = prevSchedule?.[day] || {};
+      const prevGroups = Array.isArray(prevDay.muscleGroups)
+        ? prevDay.muscleGroups
+        : [];
+
+      const nextGroups = prevGroups.includes(muscleValue)
+        ? prevGroups.filter((g) => g !== muscleValue)
+        : [...prevGroups, muscleValue];
+
+      return {
+        ...prev,
+        workoutGoal: {
+          ...prev.workoutGoal,
+          userEdited: true,
+          schedule: {
+            ...prevSchedule,
+            [day]: {
+              ...prevDay,
+              muscleGroups: nextGroups,
+            },
+          },
+        },
       };
     });
   };
