@@ -36,7 +36,7 @@ const Registration = () => {
     weight: "",
     gender: "",
     age: "",
-  activityLevel: "light",
+    activityLevel: "light",
     // Step2b stores optional BMI-derived recommendation info.
     recommendations: {
       bmi: null,
@@ -204,6 +204,18 @@ const Registration = () => {
 
   return (
     <div className="registration-container">
+      <header
+        className="ns-hero"
+        style={{ maxWidth: 980, width: "100%", margin: "0 auto 22px" }}
+      >
+        <div className="ns-heroInner">
+          <h1 className="ns-heroTitle">NutriFit</h1>
+          <p className="ns-heroSubtitle">
+            Your fitness and nutrition guide all in one!
+          </p>
+        </div>
+      </header>
+
       <div className="registration-card">
         <div className="registration-header">
           <h1>Welcome to Your Fitness Journey</h1>

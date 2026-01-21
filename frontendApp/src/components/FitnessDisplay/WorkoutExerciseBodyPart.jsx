@@ -29,7 +29,7 @@ const WorkoutExerciseBodyPart = () => {
           userCtx.setAccessToken("");
         },
       }),
-    [userCtx]
+    [userCtx],
   );
 
   const normalizedQuery = query.trim().toLowerCase();
@@ -38,7 +38,7 @@ const WorkoutExerciseBodyPart = () => {
     : items.filter((ex) =>
         String(ex?.exerciseName || "")
           .toLowerCase()
-          .includes(normalizedQuery)
+          .includes(normalizedQuery),
       );
 
   useEffect(() => {
@@ -53,7 +53,7 @@ const WorkoutExerciseBodyPart = () => {
         "/users/me",
         "GET",
         undefined,
-        userCtx.accessToken
+        userCtx.accessToken,
       );
       if (!meRes.ok) {
         setMe(null);
@@ -69,7 +69,7 @@ const WorkoutExerciseBodyPart = () => {
         `/workoutexercises/bodypart/${encodeURIComponent(muscleGroup)}`,
         "GET",
         undefined,
-        userCtx.accessToken
+        userCtx.accessToken,
       );
 
       if (!res.ok) {
@@ -145,7 +145,7 @@ const WorkoutExerciseBodyPart = () => {
         {
           name: String(exercise?.exerciseName || "").trim(),
           muscleGroup: String(
-            exercise?.exerciseBodyParts || muscleGroup || ""
+            exercise?.exerciseBodyParts || muscleGroup || "",
           ).trim(),
           sets,
           repetitions,
@@ -158,7 +158,7 @@ const WorkoutExerciseBodyPart = () => {
       "/workoutlogs",
       "POST",
       body,
-      userCtx.accessToken
+      userCtx.accessToken,
     );
 
     if (!res.ok) {
@@ -227,10 +227,12 @@ const WorkoutExerciseBodyPart = () => {
             <article
               key={id}
               style={{
-                border: "1px solid #e5e7eb",
+                border: "1px solid rgba(255, 255, 255, 0.12)",
                 borderRadius: 12,
                 padding: 16,
-                background: "white",
+                background:
+                  "linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04))",
+                color: "rgba(255, 255, 255, 0.88)",
               }}
             >
               <div
@@ -247,7 +249,14 @@ const WorkoutExerciseBodyPart = () => {
                     {formatWord(ex?.exerciseName) || "Unnamed exercise"}
                   </h3>
 
-                  <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: 12,
+                      flexWrap: "wrap",
+                      color: "rgba(255, 255, 255, 0.72)",
+                    }}
+                  >
                     <span>
                       <strong>Body part:</strong> {ex?.exerciseBodyParts || "—"}
                     </span>
@@ -268,15 +277,23 @@ const WorkoutExerciseBodyPart = () => {
               </div>
 
               <div style={{ marginTop: 12 }}>
-                <h4 style={{ margin: 0 }}>Instructions</h4>
+                <h4 style={{ margin: 0, color: "rgba(255, 255, 255, 0.9)" }}>
+                  Instructions
+                </h4>
                 {instructionsLines.length > 0 ? (
-                  <ol style={{ marginTop: 8 }}>
+                  <ol
+                    style={{ marginTop: 8, color: "rgba(255, 255, 255, 0.76)" }}
+                  >
                     {instructionsLines.map((line, idx) => (
                       <li key={idx}>{line}</li>
                     ))}
                   </ol>
                 ) : (
-                  <p style={{ marginTop: 8 }}>No instructions provided.</p>
+                  <p
+                    style={{ marginTop: 8, color: "rgba(255, 255, 255, 0.76)" }}
+                  >
+                    No instructions provided.
+                  </p>
                 )}
               </div>
 
@@ -293,14 +310,16 @@ const WorkoutExerciseBodyPart = () => {
                     style={{
                       marginTop: 8,
                       padding: 12,
-                      border: "1px solid #e5e7eb",
+                      border: "1px solid rgba(255, 255, 255, 0.14)",
                       borderRadius: 12,
-                      background: "#f8fafc",
+                      background: "rgba(255, 255, 255, 0.06)",
                     }}
                   >
                     <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
                       <label style={{ display: "grid", gap: 4 }}>
-                        <span>Date</span>
+                        <span style={{ color: "rgba(255, 255, 255, 0.78)" }}>
+                          Date
+                        </span>
                         <input
                           type="date"
                           value={addForm.date}
@@ -315,7 +334,9 @@ const WorkoutExerciseBodyPart = () => {
 
                     <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
                       <label style={{ display: "grid", gap: 4 }}>
-                        <span>Sets</span>
+                        <span style={{ color: "rgba(255, 255, 255, 0.78)" }}>
+                          Sets
+                        </span>
                         <input
                           type="number"
                           min="1"
@@ -330,7 +351,9 @@ const WorkoutExerciseBodyPart = () => {
                       </label>
 
                       <label style={{ display: "grid", gap: 4 }}>
-                        <span>Reps</span>
+                        <span style={{ color: "rgba(255, 255, 255, 0.78)" }}>
+                          Reps
+                        </span>
                         <input
                           type="number"
                           min="1"
@@ -348,7 +371,9 @@ const WorkoutExerciseBodyPart = () => {
                       </label>
 
                       <label style={{ display: "grid", gap: 4 }}>
-                        <span>Weight (kg)</span>
+                        <span style={{ color: "rgba(255, 255, 255, 0.78)" }}>
+                          Weight (kg)
+                        </span>
                         <input
                           type="number"
                           min="0"
@@ -379,7 +404,10 @@ const WorkoutExerciseBodyPart = () => {
                         onClick={cancelAdd}
                         disabled={isAdding}
                         type="button"
-                        style={{ background: "#e5e7eb", color: "#111827" }}
+                        style={{
+                          background: "rgba(255, 255, 255, 0.10)",
+                          color: "rgba(255, 255, 255, 0.9)",
+                        }}
                       >
                         Cancel
                       </button>
