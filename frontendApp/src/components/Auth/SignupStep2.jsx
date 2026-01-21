@@ -155,6 +155,10 @@ const SignupStep2 = ({ onNext, onBack, formData, setFormData }) => {
       newErrors.goal = "Please select your fitness goal";
     }
 
+    if (isProfileComplete && !formData.activityLevel) {
+      newErrors.activityLevel = "Please select your activity level";
+    }
+
     return newErrors;
   };
 
@@ -272,6 +276,30 @@ const SignupStep2 = ({ onNext, onBack, formData, setFormData }) => {
               </div>
               <div style={{ marginTop: 6 }}>{bmiInfo.advice}</div>
             </div>
+          </div>
+        )}
+
+        {/* Activity level (used for calorie recommendations) */}
+        {isProfileComplete && bmiInfo && (
+          <div className="form-group">
+            <label htmlFor="activityLevel">Activity Level *</label>
+            <select
+              id="activityLevel"
+              name="activityLevel"
+              value={formData.activityLevel || "light"}
+              onChange={handleChange}
+              className={errors.activityLevel ? "error" : ""}
+            >
+              <option value="sedentary">
+                Sedentary (little or no exercise)
+              </option>
+              <option value="light">Light (1–3 days/week)</option>
+              <option value="moderate">Moderate (3–5 days/week)</option>
+              <option value="active">Active (6–7 days/week)</option>
+            </select>
+            {errors.activityLevel && (
+              <span className="error-message">{errors.activityLevel}</span>
+            )}
           </div>
         )}
 
