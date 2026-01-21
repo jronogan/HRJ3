@@ -493,12 +493,39 @@ body::before {
   border-radius: 12px;
   padding: 12px 16px;
   margin: 20px 0;
-  color: rgba(255, 255, 255, 0.86);
+  color: white;
   font-size: 14px;
 }
 
 .info-box p {
   margin: 0;
+}
+
+.bmi-card {
+  color: black;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  border-radius: 12px;
+  padding: 16px;
+  margin: 20px 0;
+  color: black;
+  font-size: 14px;
+}
+
+.card h3 {
+  color: black;
+  margin-top: 0;
+}
+
+.card ul {
+  color: black;
+}
+
+.card ul li {
+  color: black;
 }
 
 /* ===== FORM LAYOUTS ===== */
