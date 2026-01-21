@@ -52,7 +52,7 @@ const SignupStep2 = ({ onNext, onBack, formData, setFormData }) => {
   }, [formData.age]);
 
   const isProfileComplete = useMemo(() => {
-    // Keep this minimal: selection visibility (not strict validation).
+
     return (
       formData.gender &&
       Number.isFinite(ageNum) &&
@@ -68,7 +68,7 @@ const SignupStep2 = ({ onNext, onBack, formData, setFormData }) => {
     const heightM = heightCm / 100;
     const bmi = weightKg / (heightM * heightM);
 
-    // Use your requested ranges/text.
+
     let category = "";
     let advice = "";
 
@@ -84,7 +84,7 @@ const SignupStep2 = ({ onNext, onBack, formData, setFormData }) => {
       advice =
         "Priority: Insulin sensitivity, visceral fat reduction - Weight loss recommended";
     } else {
-      // You didn’t specify >27.4, but we still show something sensible.
+
       category = "Above range";
       advice =
         "Priority: Fat reduction & overall health - weight loss recommended";
@@ -99,7 +99,7 @@ const SignupStep2 = ({ onNext, onBack, formData, setFormData }) => {
     setFormData((prev) => {
       const nextBmi = Number(bmiInfo.bmi.toFixed(1));
 
-      // Avoid unnecessary updates -> helps prevent re-render loops
+
       const same =
         prev.bmi === nextBmi &&
         prev.bmiCategory === bmiInfo.category &&

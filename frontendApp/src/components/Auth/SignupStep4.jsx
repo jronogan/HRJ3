@@ -11,8 +11,7 @@ const DAYS = [
   "sunday",
 ];
 
-// Top row: upper arms, chest, back, lower arms, shoulders (5 items)
-// Bottom row: cardio, lower legs, waist, upper legs (4 items)
+
 const MUSCLE_GROUPS = [
   { value: "chest", label: "Chest" },
   { value: "lower arms", label: "Lower Arms" },

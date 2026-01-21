@@ -82,10 +82,10 @@ const SignupStep3 = ({ onNext, onBack, formData, setFormData }) => {
     setFormData((prev) => {
       const ng = prev.nutritionGoal || {};
 
-      // If user edited, never override
+
       if (ng.userEdited) return prev;
 
-      // If already applied for this exact profile, do nothing
+
       if (ng.recommendationKey === rec.recommendationKey) return prev;
 
       const isEmpty =
@@ -94,7 +94,7 @@ const SignupStep3 = ({ onNext, onBack, formData, setFormData }) => {
         !ng.carbsGramsPerDay &&
         !ng.fatsGramsPerDay;
 
-      // Only autofill when empty (prevents overriding manual values & avoids loops)
+
       if (!isEmpty) return prev;
 
       return {
