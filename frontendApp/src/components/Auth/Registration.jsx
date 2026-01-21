@@ -2,6 +2,7 @@ import React, { use, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import SignupStep1 from "./SignupStep1";
 import SignupStep2 from "./SignupStep2";
+import SignupStep2b from "./SignupStep2bRecommendations";
 import SignupStep3 from "./SignupStep3";
 import SignupStep4 from "./SignupStep4";
 import UserContext from "../../context/user";
@@ -25,6 +26,12 @@ const Registration = () => {
     weight: "",
     gender: "",
     age: "",
+    // Step2b stores optional BMI-derived recommendation info.
+    recommendations: {
+      bmi: null,
+      category: "",
+      advice: "",
+    },
     nutritionGoal: {
       caloriesPerDay: "",
       proteinGramsPerDay: "",
@@ -45,13 +52,15 @@ const Registration = () => {
     },
   });
 
+  const totalSteps = 5;
+
   const handleNextStep = () => {
-    setCurrentStep((prev) => prev + 1);
+    setCurrentStep((prev) => Math.min(prev + 1, totalSteps));
     setError("");
   };
 
   const handlePrevStep = () => {
-    setCurrentStep((prev) => prev - 1);
+    setCurrentStep((prev) => Math.max(prev - 1, 1));
     setError("");
   };
 
@@ -68,7 +77,7 @@ const Registration = () => {
         height: parseFloat(formData.height),
         weight: parseFloat(formData.weight),
         gender: formData.gender,
-        age: parseInt(formData.age),
+        age: parseInt(formData.age, 10),
         nutritionGoal: {
           caloriesPerDay: parseFloat(formData.nutritionGoal.caloriesPerDay),
           proteinGramsPerDay: parseFloat(
@@ -146,7 +155,7 @@ const Registration = () => {
         );
       case 3:
         return (
-          <SignupStep3
+          <SignupStep2b
             onNext={handleNextStep}
             onBack={handlePrevStep}
             formData={formData}
@@ -154,6 +163,15 @@ const Registration = () => {
           />
         );
       case 4:
+        return (
+          <SignupStep3
+            onNext={handleNextStep}
+            onBack={handlePrevStep}
+            formData={formData}
+            setFormData={setFormData}
+          />
+        );
+      case 5:
         return (
           <SignupStep4
             onSubmit={handleSubmit}
@@ -175,7 +193,7 @@ const Registration = () => {
           <h1>Welcome to Your Fitness Journey</h1>
           <div className="progress-indicator">
             <div className="progress-steps">
-              {[1, 2, 3, 4].map((step) => (
+              {[1, 2, 3, 4, 5].map((step) => (
                 <div
                   key={step}
                   className={`progress-step ${
@@ -190,8 +208,9 @@ const Registration = () => {
                   <div className="step-label">
                     {step === 1 && "Account"}
                     {step === 2 && "Profile"}
-                    {step === 3 && "Nutrition"}
-                    {step === 4 && "Workout"}
+                    {step === 3 && "Recommendations"}
+                    {step === 4 && "Nutrition"}
+                    {step === 5 && "Workout"}
                   </div>
                 </div>
               ))}

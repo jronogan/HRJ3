@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 const SignupStep2 = ({ onNext, onBack, formData, setFormData }) => {
   const [errors, setErrors] = useState({});
@@ -92,6 +92,41 @@ const SignupStep2 = ({ onNext, onBack, formData, setFormData }) => {
 
     return { bmi, category, advice };
   }, [heightCm, weightKg]);
+
+  useEffect(() => {
+    if (!bmiInfo) return;
+
+    setFormData((prev) => {
+      const nextBmi = Number(bmiInfo.bmi.toFixed(1));
+
+      // Avoid unnecessary updates -> helps prevent re-render loops
+      const same =
+        prev.bmi === nextBmi &&
+        prev.bmiCategory === bmiInfo.category &&
+        prev.bmiAdvice === bmiInfo.advice;
+
+      if (same) return prev;
+
+      return {
+        ...prev,
+        bmi: nextBmi,
+        bmiCategory: bmiInfo.category, // UNDERWEIGHT/NORMAL/OVERWEIGHT/OBESE
+        bmiAdvice: bmiInfo.advice,
+
+        // Clear downstream recommendation state when profile changes
+        nutritionGoal: {
+          ...(prev.nutritionGoal || {}),
+          recommendationKey: "", // so Step3 can re-autofill if needed
+          userEdited: false,
+        },
+        workoutGoal: {
+          ...(prev.workoutGoal || {}),
+          recommendationKey: "",
+          userEdited: false,
+        },
+      };
+    });
+  }, [bmiInfo, setFormData]);
 
   const validateForm = () => {
     const newErrors = {};
