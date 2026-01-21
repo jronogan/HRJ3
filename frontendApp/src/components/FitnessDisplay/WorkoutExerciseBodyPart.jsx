@@ -245,7 +245,10 @@ const WorkoutExerciseBodyPart = () => {
                 }}
               >
                 <div style={{ minWidth: 240, flex: "1 1 360px" }}>
-                  <h3 style={{ marginTop: 0, marginBottom: 8 }}>
+                  <h3
+                    className="fitnessHeaderPro"
+                    style={{ marginTop: 0, marginBottom: 8 }}
+                  >
                     {formatWord(ex?.exerciseName) || "Unnamed exercise"}
                   </h3>
 

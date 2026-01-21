@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Oxygen:wght@300;400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&family=Space+Grotesk:wght@300..700&display=swap");
 
 :root {
   /* Night Shade theme */
@@ -18,6 +18,19 @@
   --ns-radius-lg: 18px;
   --ns-radius-md: 12px;
   --ns-radius-sm: 10px;
+
+  /* Typography */
+  --ns-font-sans:
+    "Work Sans", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial,
+    "Apple Color Emoji", "Segoe UI Emoji";
+  --ns-font-display:
+    "Space Grotesk", "Work Sans", system-ui, -apple-system, Segoe UI, Roboto,
+    Helvetica, Arial;
+
+  /* Professional, less-digital accent for specific dashboard headers */
+  --ns-font-pro:
+    ui-sans-serif, system-ui, -apple-system, "SF Pro Text", "SF Pro Display",
+    "Segoe UI", Roboto, Helvetica, Arial;
 }
 
 * {
@@ -25,8 +38,46 @@
 }
 
 html {
-  font-family: "Oxygen", sans-serif;
+  font-family: var(--ns-font-sans);
   color-scheme: dark;
+}
+
+/* Headings get a sleek display font to match the night theme */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--ns-font-display);
+  letter-spacing: 0.01em;
+}
+
+/* FitnessDashboard: soften just the "Nutrition" and "Workout" card headers */
+.fitnessCard > h3 {
+  font-family: var(--ns-font-pro);
+  font-weight: 650;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+/* Professional header font utility (use for headers that should match dashboard titles) */
+.fitnessHeaderPro {
+  font-family: var(--ns-font-pro) !important;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+}
+
+/* Smaller, softer secondary text inside key dashboard headings */
+.fitnessHeaderMeta {
+  display: inline-block;
+  margin-left: 0.45rem;
+  font-size: 0.72em;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--ns-text-dim);
+  opacity: 0.95;
 }
 
 body {
@@ -499,6 +550,41 @@ body::before {
 
 .info-box p {
   margin: 0;
+}
+
+/* Generic card used by some signup steps */
+.card {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.08),
+    rgba(255, 255, 255, 0.04)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  padding: 16px;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.card h3 {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.card ul {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+/* BMI panel used in SignupStep2 */
+.bmi-card {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.08),
+    rgba(255, 255, 255, 0.04)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.88);
 }
 
 /* ===== FORM LAYOUTS ===== */
