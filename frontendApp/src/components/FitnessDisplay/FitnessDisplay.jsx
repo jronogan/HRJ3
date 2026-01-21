@@ -15,6 +15,15 @@ const FitnessDisplay = () => {
 
   return (
     <div className="fitnessShell">
+      <header className="ns-hero" style={{ marginBottom: "1rem" }}>
+        <div className="ns-heroInner">
+          <h1 className="ns-heroTitle">NutriFit</h1>
+          <p className="ns-heroSubtitle">
+            Your fitness and nutrition guide all in one!
+          </p>
+        </div>
+      </header>
+
       <div className="fitnessNav">
         <div className="fitnessNavLinks">
           <Link to="/fitness">Dashboard</Link>

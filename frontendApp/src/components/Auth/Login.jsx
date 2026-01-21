@@ -20,7 +20,7 @@ const Login = () => {
           userCtx.setRefreshToken("");
         },
       }),
-    [userCtx]
+    [userCtx],
   );
 
   const handleSubmit = async (e) => {
@@ -63,6 +63,18 @@ const Login = () => {
 
   return (
     <div className="auth-container">
+      <header
+        className="ns-hero"
+        style={{ maxWidth: 560, width: "100%", margin: "0 auto 18px" }}
+      >
+        <div className="ns-heroInner">
+          <h1 className="ns-heroTitle">NutriFit</h1>
+          <p className="ns-heroSubtitle">
+            Your fitness and nutrition guide all in one!
+          </p>
+        </div>
+      </header>
+
       <div className="auth-card">
         <div className="auth-header">
           <h1>Welcome Back</h1>

@@ -18,6 +18,16 @@
   margin-bottom: 1rem;
 }
 
+.fitnessNav a {
+  color: rgba(255, 255, 255, 0.78);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.fitnessNav a:hover {
+  color: rgba(200, 145, 100, 0.98);
+}
+
 .fitnessNavLinks {
   display: flex;
   gap: 1rem;
@@ -25,8 +35,13 @@
 }
 
 .fitnessCard {
-  background: white;
-  border-radius: 8px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.08),
+    rgba(255, 255, 255, 0.04)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
   padding: 1rem;
   min-width: 0;
 }
@@ -61,11 +76,11 @@
 }
 
 .fitnessError {
-  color: #b00020;
+  color: rgba(255, 138, 138, 0.95);
 }
 
 .fitnessMuted {
-  opacity: 0.75;
+  opacity: 0.78;
 }
 
 .fitnessTableWrap {
@@ -84,32 +99,70 @@
 
 .fitnessTable th,
 .fitnessTable td {
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   padding: 0.5rem;
   text-align: left;
 }
 
+.fitnessTable th {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.fitnessTable td {
+  color: rgba(255, 255, 255, 0.72);
+}
+
 .fitnessButton {
   padding: 0.5rem 0.75rem;
-  border: 1px solid #ddd;
-  background: whitesmoke;
-  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
   cursor: pointer;
+}
+
+.fitnessButton:hover {
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .fitnessButtonPrimary {
   padding: 0.5rem 0.75rem;
-  border: 1px solid #ddd;
-  background: white;
-  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(
+    135deg,
+    rgba(47, 95, 134, 1) 0%,
+    rgba(34, 50, 72, 1) 85%
+  );
+  color: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
   cursor: pointer;
+}
+
+.fitnessButtonPrimary:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(63, 118, 164, 1) 0%,
+    rgba(34, 50, 72, 1) 90%
+  );
 }
 
 .fitnessInput {
   padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 12px;
+  background: rgba(8, 12, 18, 0.55);
+  color: rgba(255, 255, 255, 0.92);
   min-width: 0;
+}
+
+.fitnessInput::placeholder {
+  color: rgba(255, 255, 255, 0.38);
+}
+
+.fitnessInput:focus {
+  outline: none;
+  border-color: rgba(47, 95, 134, 0.75);
+  box-shadow: 0 0 0 4px rgba(47, 95, 134, 0.22);
 }
 
 .fitnessInputNarrow {
@@ -123,7 +176,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.72);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -131,8 +184,14 @@
 }
 
 .modal-content {
-  background: white;
-  border-radius: 8px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0.06)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(14px);
+  border-radius: 16px;
   padding: 1.5rem;
   max-width: 500px;
   width: 90%;
@@ -148,4 +207,5 @@
   display: block;
   margin-bottom: 0.25rem;
   font-weight: 500;
+  color: rgba(255, 255, 255, 0.78);
 }
