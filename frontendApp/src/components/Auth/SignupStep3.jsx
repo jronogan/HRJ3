@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { getRecommendations } from "../recommendations.js";
 
 const SignupStep3 = ({ onNext, onBack, formData, setFormData }) => {
   const [errors, setErrors] = useState({});
@@ -10,11 +11,10 @@ const SignupStep3 = ({ onNext, onBack, formData, setFormData }) => {
       nutritionGoal: {
         ...prev.nutritionGoal,
         [name]: value,
+        userEdited: true,
       },
     }));
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
-    }
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const validateForm = () => {
@@ -73,6 +73,44 @@ const SignupStep3 = ({ onNext, onBack, formData, setFormData }) => {
       setErrors(newErrors);
     }
   };
+
+  const rec = useMemo(() => getRecommendations(formData), [formData]);
+
+  useEffect(() => {
+    if (!rec) return;
+
+    setFormData((prev) => {
+      const ng = prev.nutritionGoal || {};
+
+      // If user edited, never override
+      if (ng.userEdited) return prev;
+
+      // If already applied for this exact profile, do nothing
+      if (ng.recommendationKey === rec.recommendationKey) return prev;
+
+      const isEmpty =
+        !ng.caloriesPerDay &&
+        !ng.proteinGramsPerDay &&
+        !ng.carbsGramsPerDay &&
+        !ng.fatsGramsPerDay;
+
+      // Only autofill when empty (prevents overriding manual values & avoids loops)
+      if (!isEmpty) return prev;
+
+      return {
+        ...prev,
+        nutritionGoal: {
+          ...ng,
+          caloriesPerDay: String(rec.calories),
+          proteinGramsPerDay: String(rec.macros.proteinG),
+          carbsGramsPerDay: String(rec.macros.carbsG),
+          fatsGramsPerDay: String(rec.macros.fatG),
+          recommendationKey: rec.recommendationKey,
+          userEdited: false,
+        },
+      };
+    });
+  }, [rec, setFormData]);
 
   return (
     <div className="signup-step">

@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { getRecommendations } from "../recommendations.js";
 
 const DAYS = [
   "monday",
@@ -34,38 +35,26 @@ const SignupStep4 = ({
   const [errors, setErrors] = useState({});
 
   const handleDaysPerWeekChange = (e) => {
-    const value = parseInt(e.target.value);
+    const value = parseInt(e.target.value, 10);
     setFormData((prev) => ({
       ...prev,
       workoutGoal: {
         ...prev.workoutGoal,
         daysPerWeek: value,
+        userEdited: true,
       },
     }));
   };
 
-  const handleToggleGroup = (day, muscleGroup) => {
-    setFormData((prev) => {
-      const prevDay = prev.workoutGoal?.schedule?.[day] || { muscleGroups: [] };
-      const prevGroups = Array.isArray(prevDay.muscleGroups)
-        ? prevDay.muscleGroups
-        : [];
-
-      const exists = prevGroups.includes(muscleGroup);
-      const nextGroups = exists
-        ? prevGroups.filter((g) => g !== muscleGroup)
-        : [...prevGroups, muscleGroup];
-
-      return {
-        ...prev,
-        workoutGoal: {
-          ...prev.workoutGoal,
-          schedule: {
-            ...prev.workoutGoal?.schedule,
-            [day]: {
-              muscleGroups: nextGroups,
-            },
-          },
+  const handleDayChange = (day, muscleGroup) => {
+    setFormData((prev) => ({
+      ...prev,
+      workoutGoal: {
+        ...prev.workoutGoal,
+        userEdited: true,
+        schedule: {
+          ...prev.workoutGoal?.schedule,
+          [day]: { muscleGroups: muscleGroup ? [muscleGroup] : [] },
         },
       };
     });
@@ -103,6 +92,33 @@ const SignupStep4 = ({
       setErrors(newErrors);
     }
   };
+
+  const rec = useMemo(() => getRecommendations(formData), [formData]);
+
+  useEffect(() => {
+    if (!rec) return;
+
+    setFormData((prev) => {
+      const wg = prev.workoutGoal || {};
+
+      if (wg.userEdited) return prev;
+      if (wg.recommendationKey === rec.recommendationKey) return prev;
+
+      // Only set if not already chosen
+      if (wg.daysPerWeek) return prev;
+
+      return {
+        ...prev,
+        workoutGoal: {
+          ...wg,
+          daysPerWeek: rec.workout.daysPerWeek,
+          schedule: wg.schedule || {},
+          recommendationKey: rec.recommendationKey,
+          userEdited: false,
+        },
+      };
+    });
+  }, [rec, setFormData]);
 
   return (
     <div className="signup-step">
