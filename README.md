@@ -42,7 +42,7 @@ A comprehensive full-stack fitness tracking application that helps users monitor
 
 ## 🖧 Component Tree & Architecture
 
-
+![React component tree](./react-component-tree.png)
 
 ## 🔧 Backend API Integration
 
@@ -61,6 +61,7 @@ A comprehensive full-stack fitness tracking application that helps users monitor
 - `DELETE /nutritionlogs/{id}` - Delete a nutrition log
 - `GET /nutritiongoals/{id}` - Retrieve nutrition goal settings
 - `PUT /nutritiongoals/{id}` - Update nutrition goal settings
+- CalorieNinjas API @ https://calorieninjas.com/api - Extract detailed nutrition information using text search
 
 **Workout Endpoints:**
 
@@ -84,15 +85,17 @@ To run this application locally, you must create a `.env` file in both the backe
 **Backend (.env):**
 
 ```
-MONGODB_URI=your_mongodb_connection_string
-JWT_SECRET=your_jwt_secret_key
+MONGO_URI=your_mongodb_connection_string
+SECRET_ACCESS_KEY=your_jwt_secret_access_key
+SECRET_REFRESH_KEY=your_jwt_secret_refresh_key
 PORT=5000
 ```
 
 **Frontend (.env):**
 
 ```
-VITE_API_URL=http://localhost:5000
+VITE_SERVER=http://localhost:5000
+VITE_NUTRITION_API_KEY=your_calorieningas_api_key
 ```
 
 ## 💡 Project Objectives & Takeaways
